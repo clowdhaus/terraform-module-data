@@ -24,6 +24,7 @@ tracing = {version = "0.1", default-features = false, features = ["log-always"] 
 tracing-log = "0.2"
 tracing-subscriber = { version = "0.3", default-features = false, features = ["fmt", "std", "ansi"] }
 tokio = { version = "1.23", default-features = false, features = ["macros", "rt-multi-thread"] }
+url = "2.5"
 
 [profile.release]
 strip = true

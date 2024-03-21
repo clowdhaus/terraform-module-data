@@ -59,6 +59,6 @@ async fn main() -> Result<()> {
   let _cur_dir = cur_exe.parent().unwrap().parent().unwrap().parent().unwrap();
 
   match &cli.command {
-    Commands::GetDownloads(_download) => todo!(),
+    Commands::GetDownloads(download) => download.get().await,
   }
 }
