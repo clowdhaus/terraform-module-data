@@ -1,0 +1,32 @@
+[package]
+name = "module-download-data"
+version = "0.1.0"
+authors = ["Bryant Biggs <bryantbiggs@gmail.com>"]
+documentation = "https://github.com/clowdhaus/module-download-data"
+homepage = "https://github.com/clowdhaus/module-download-data"
+repository = "https://github.com/clowdhaus/module-download-data"
+license = "Apache-2.0"
+edition = "2021"
+categories = [
+  "command-line-utilities",
+  "containers",
+]
+
+[dependencies]
+anstyle = "1.0"
+anyhow = "1.0"
+clap = { version = "4.2", features = ["derive", "env", "color", "unstable-styles"] }
+clap-verbosity-flag = "2.0"
+reqwest = { version = "0.12", features = ["json"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tracing = {version = "0.1", default-features = false, features = ["log-always"] }
+tracing-log = "0.2"
+tracing-subscriber = { version = "0.3", default-features = false, features = ["fmt", "std", "ansi"] }
+tokio = { version = "1.23", default-features = false, features = ["macros", "rt-multi-thread"] }
+
+[profile.release]
+strip = true
+opt-level = "z"
+lto = true
+codegen-units = 1
