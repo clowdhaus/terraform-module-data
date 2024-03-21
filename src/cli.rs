@@ -76,7 +76,8 @@ impl Download {
       .await?;
 
     let response: crate::data::Response = resp.json().await?;
-    println!("{:#?}", response);
+    // println!("{:#?}", response);
+    println!("{:#?}", response.summarize()?);
 
     Ok(())
   }

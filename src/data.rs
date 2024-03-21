@@ -1,3 +1,5 @@
+use anyhow::Result;
+use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -51,4 +53,37 @@ pub struct IncludedAttributes {
   pub source: String,
   pub updated_at: String,
   pub version: String,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct Summary {
+  pub downloads: u64,
+  pub version: String,
+  pub major_version: String,
+}
+
+impl Response {
+  pub fn summarize(&self) -> Result<Vec<Summary>> {
+    let summary = self
+      .included
+      .iter()
+      .map(|i| Summary {
+        downloads: i.attributes.downloads,
+        version: i.attributes.version.clone(),
+        major_version: i.attributes.version.split('.').next().unwrap().to_string(),
+      })
+      .group_by(|i| i.major_version.clone())
+      .into_iter()
+      .map(|(k, v)| {
+        let total_downloads: u64 = v.map(|i| i.downloads).sum();
+        Summary {
+          downloads: total_downloads,
+          version: k.clone(),
+          major_version: k,
+        }
+      })
+      .collect::<Vec<Summary>>();
+
+    Ok(summary)
+  }
 }
