@@ -1,5 +1,6 @@
+use std::collections::BTreeMap;
+
 use anyhow::Result;
-use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -63,26 +64,20 @@ pub struct Summary {
 }
 
 impl Response {
-  pub fn summarize(&self) -> Result<Vec<Summary>> {
-    let summary = self
-      .included
-      .iter()
-      .map(|i| Summary {
-        downloads: i.attributes.downloads,
-        version: i.attributes.version.clone(),
-        major_version: i.attributes.version.split('.').next().unwrap().to_string(),
-      })
-      .group_by(|i| i.major_version.clone())
-      .into_iter()
-      .map(|(k, v)| {
-        let total_downloads: u64 = v.map(|i| i.downloads).sum();
-        Summary {
-          downloads: total_downloads,
-          version: k.clone(),
-          major_version: k,
-        }
-      })
-      .collect::<Vec<Summary>>();
+  pub fn summarize(&self) -> Result<BTreeMap<String, Summary>> {
+    let mut summary: BTreeMap<String, Summary> = BTreeMap::new();
+    for i in self.included.iter() {
+      let major_version = i.attributes.version.split('.').next().unwrap().to_string();
+      let key = format!("{:02}", major_version.parse::<u64>().unwrap_or(0));
+
+      let record = summary.entry(key).or_insert(Summary {
+        downloads: 0,
+        version: major_version.clone(),
+        major_version,
+      });
+
+      record.downloads += i.attributes.downloads;
+    }
 
     Ok(summary)
   }
