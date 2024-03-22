@@ -1,7 +1,6 @@
-use std::env;
+use std::{collections::BTreeMap, env, fs, path::PathBuf};
 
 use anyhow::{bail, Result};
-use itertools::Itertools;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use url::Url;
@@ -22,24 +21,40 @@ pub struct View {
   pub uniques: u64,
 }
 
+pub type PageViewSummary = BTreeMap<String, View>;
+
 impl PageViewsResponse {
-  pub fn summarize(&self) -> Result<Vec<View>> {
-    let views = self
-      .views
-      .iter()
-      .map(|v| {
-        let timestamp = chrono::DateTime::parse_from_rfc3339(&v.timestamp).unwrap();
+  /// Load the currently saved data from file
+  fn get_current(&self, path: &PathBuf) -> Result<PageViewSummary> {
+    match fs::read_to_string(path) {
+      Ok(data) => {
+        let summary: PageViewSummary = serde_json::from_str(&data)?;
+        Ok(summary)
+      }
+      Err(_) => Ok(PageViewSummary::new()),
+    }
+  }
 
-        View {
-          count: v.count,
-          timestamp: timestamp.date_naive().to_string(),
-          uniques: v.uniques,
-        }
-      })
-      .sorted_by(|a, b| a.timestamp.cmp(&b.timestamp))
-      .collect();
+  fn summarize(self, path: &PathBuf) -> Result<PageViewSummary> {
+    let mut summary = self.get_current(path)?;
 
-    Ok(views)
+    for v in self.views.into_iter() {
+      let timestamp = chrono::DateTime::parse_from_rfc3339(&v.timestamp).unwrap();
+      summary.insert(timestamp.date_naive().to_string(), v);
+    }
+
+    Ok(summary)
+  }
+
+  pub fn write(self, module: &str, path: PathBuf) -> Result<()> {
+    let filepath = path.join(format!("{module}.json"));
+    let summary = self.summarize(&filepath)?;
+    std::fs::create_dir_all(&path)?;
+
+    let json = serde_json::to_string_pretty(&summary)?;
+    std::fs::write(filepath, json)?;
+
+    Ok(())
   }
 }
 

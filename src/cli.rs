@@ -56,8 +56,9 @@ impl Download {
     let data_path = PathBuf::from("data");
 
     // GitHub repository data
+    let gh_path = data_path.join("github");
     let gh_page_views = crate::github::get_page_views(&self.module).await?;
-    println!("{:#?}", gh_page_views.summarize()?);
+    gh_page_views.write(&self.module, gh_path)?;
 
     // Terraform registry data
     let registry = crate::registry::get(&self.module).await?;
