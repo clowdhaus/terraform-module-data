@@ -1,77 +1,77 @@
 {
   "2024-03-08": {
-    "count": 1631,
+    "count": 22037,
     "timestamp": "2024-03-08T00:00:00Z",
-    "uniques": 274
+    "uniques": 4399
   },
   "2024-03-09": {
-    "count": 3788,
+    "count": 45776,
     "timestamp": "2024-03-09T00:00:00Z",
-    "uniques": 487
+    "uniques": 3954
   },
   "2024-03-10": {
-    "count": 4586,
+    "count": 47807,
     "timestamp": "2024-03-10T00:00:00Z",
-    "uniques": 545
+    "uniques": 4250
   },
   "2024-03-11": {
-    "count": 16412,
+    "count": 115035,
     "timestamp": "2024-03-11T00:00:00Z",
-    "uniques": 1786
+    "uniques": 14473
   },
   "2024-03-12": {
-    "count": 16801,
+    "count": 124254,
     "timestamp": "2024-03-12T00:00:00Z",
-    "uniques": 1817
+    "uniques": 15142
   },
   "2024-03-13": {
-    "count": 18913,
+    "count": 128984,
     "timestamp": "2024-03-13T00:00:00Z",
-    "uniques": 1966
+    "uniques": 16031
   },
   "2024-03-14": {
-    "count": 15468,
+    "count": 119792,
     "timestamp": "2024-03-14T00:00:00Z",
-    "uniques": 1849
+    "uniques": 15374
   },
   "2024-03-15": {
-    "count": 13340,
+    "count": 99190,
     "timestamp": "2024-03-15T00:00:00Z",
-    "uniques": 1581
+    "uniques": 12897
   },
   "2024-03-16": {
-    "count": 3546,
+    "count": 42409,
     "timestamp": "2024-03-16T00:00:00Z",
-    "uniques": 430
+    "uniques": 3795
   },
   "2024-03-17": {
-    "count": 3855,
+    "count": 45429,
     "timestamp": "2024-03-17T00:00:00Z",
-    "uniques": 462
+    "uniques": 3808
   },
   "2024-03-18": {
-    "count": 14104,
+    "count": 112023,
     "timestamp": "2024-03-18T00:00:00Z",
-    "uniques": 1686
+    "uniques": 15134
   },
   "2024-03-19": {
-    "count": 16260,
+    "count": 119840,
     "timestamp": "2024-03-19T00:00:00Z",
-    "uniques": 1852
+    "uniques": 15532
   },
   "2024-03-20": {
-    "count": 14723,
+    "count": 114925,
     "timestamp": "2024-03-20T00:00:00Z",
-    "uniques": 1762
+    "uniques": 14366
   },
   "2024-03-21": {
-    "count": 13658,
+    "count": 115256,
     "timestamp": "2024-03-21T00:00:00Z",
-    "uniques": 1743
+    "uniques": 14656
   },
   "2024-03-22": {
-    "count": 9205,
+    "count": 77111,
     "timestamp": "2024-03-22T00:00:00Z",
-    "uniques": 1208
+    "uniques": 10199
   }
 }
