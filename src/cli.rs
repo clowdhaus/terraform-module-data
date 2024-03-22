@@ -85,7 +85,9 @@ impl Download {
   pub fn write(&self, data: BTreeMap<String, crate::data::Summary>) -> Result<()> {
     let path = match self.path.as_deref() {
       Some(p) => p.to_path_buf(),
-      None => PathBuf::from("data").join("registry").join(self.module.clone().to_lowercase()),
+      None => PathBuf::from("data")
+        .join("registry")
+        .join(self.module.clone().to_lowercase()),
     };
     std::fs::create_dir_all(&path)?;
 

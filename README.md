@@ -1,2 +1,3 @@
-# module-download-data
-Data about Terraform module downloads by version
+# Terraform module data
+
+Data about Terraform module usage

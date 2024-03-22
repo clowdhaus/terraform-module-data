@@ -610,26 +610,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "module-download-data"
-version = "0.1.0"
-dependencies = [
- "anstyle",
- "anyhow",
- "chrono",
- "clap",
- "clap-verbosity-flag",
- "itertools",
- "reqwest",
- "serde",
- "serde_json",
- "tokio",
- "tracing",
- "tracing-log",
- "tracing-subscriber",
- "url",
-]
-
-[[package]]
 name = "native-tls"
 version = "0.2.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1042,6 +1022,26 @@ dependencies = [
  "fastrand",
  "rustix",
  "windows-sys 0.52.0",
+]
+
+[[package]]
+name = "terraform-module-data"
+version = "0.1.0"
+dependencies = [
+ "anstyle",
+ "anyhow",
+ "chrono",
+ "clap",
+ "clap-verbosity-flag",
+ "itertools",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "tracing-log",
+ "tracing-subscriber",
+ "url",
 ]
 
 [[package]]

@@ -1,16 +1,19 @@
 [package]
-name = "module-download-data"
+name = "terraform-module-data"
 version = "0.1.0"
 authors = ["Bryant Biggs <bryantbiggs@gmail.com>"]
-documentation = "https://github.com/clowdhaus/module-download-data"
-homepage = "https://github.com/clowdhaus/module-download-data"
-repository = "https://github.com/clowdhaus/module-download-data"
+documentation = "https://github.com/clowdhaus/terraform-module-data"
+homepage = "https://github.com/clowdhaus/terraform-module-data"
+repository = "https://github.com/clowdhaus/terraform-module-data"
 license = "Apache-2.0"
 edition = "2021"
 categories = [
   "command-line-utilities",
-  "containers",
 ]
+
+[[bin]]
+name = "tmd"
+path = "src/main.rs"
 
 [dependencies]
 anstyle = "1.0"
