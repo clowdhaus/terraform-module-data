@@ -58,6 +58,9 @@ pub struct Download {
 
 impl Download {
   pub async fn get(&self) -> Result<()> {
+    let gh_page_views = crate::github::get_page_views(&self.module).await?;
+    println!("{:#?}", gh_page_views.summarize()?);
+
     let registry = crate::registry::get(&self.module).await?;
     self.write(registry.summarize()?)?;
 
