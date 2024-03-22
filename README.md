@@ -24,15 +24,17 @@ Data is collected from the following sources:
 
 1. GitHub repository - repository clones and views
 
-This data is what can be found on the `/graphs/traffic` page of the GitHub repository:
+This data is what can be found on the `/graphs/traffic` page of the GitHub repository. GitHub provides data for the last 14 days, aggregated by day.
 
 ![GitHub traffic graph](./assets/github.png)
 
 2. Terraform registry - module downloads
 
-This data is what can be found on the registry page of the module:
+This data is what can be found on the registry page of the module. The registry continuously updates this data, so this project collects it daily as a "snapshot in time".
 
 ![Terraform registry downloads](./assets/registry.png)
+
+### Data Directory Structure
 
 ```text
 data/
@@ -49,8 +51,9 @@ data/
    │  ├─ 2024-03-22.json
    │  ├─ 2024-03-23.json
    │  └─ ...
-   └─ eks-pod-identity/
-      ├─ 2024-03-22.json
-      ├─ 2024-03-23.json
-      └─ ...
+   ├─ eks-pod-identity/
+   │  ├─ 2024-03-22.json
+   │  ├─ 2024-03-23.json
+   │  └─ ...
+   └─ ...
 ```
