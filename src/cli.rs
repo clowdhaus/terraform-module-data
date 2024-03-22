@@ -1,7 +1,8 @@
-use std::path::PathBuf;
+use std::{collections::BTreeMap, path::PathBuf};
 
 use anstyle::{AnsiColor, Color, Style};
 use anyhow::Result;
+use chrono::prelude::*;
 use clap::{builder::Styles, Args, Parser, Subcommand};
 use clap_verbosity_flag::Verbosity;
 use reqwest::Client;
@@ -76,8 +77,23 @@ impl Download {
       .await?;
 
     let response: crate::data::Response = resp.json().await?;
-    // println!("{:#?}", response);
-    println!("{:#?}", response.summarize()?);
+    self.write(response.summarize()?)?;
+
+    Ok(())
+  }
+
+  pub fn write(&self, data: BTreeMap<String, crate::data::Summary>) -> Result<()> {
+    let path = match self.path.as_deref() {
+      Some(p) => p.to_path_buf(),
+      None => PathBuf::from("data").join("registry"),
+    };
+    std::fs::create_dir_all(&path)?;
+
+    let data = data.into_values().collect::<Vec<crate::data::Summary>>();
+    let utc: DateTime<Utc> = Utc::now();
+    let file = path.join(format!("{}.json", utc.format("%Y-%m-%d")));
+    let json = serde_json::to_string_pretty(&data)?;
+    std::fs::write(file, json)?;
 
     Ok(())
   }
