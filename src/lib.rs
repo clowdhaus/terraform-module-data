@@ -1,3 +1,3 @@
 pub mod cli;
-pub mod github;
-pub mod registry;
+pub(crate) mod github;
+pub(crate) mod registry;

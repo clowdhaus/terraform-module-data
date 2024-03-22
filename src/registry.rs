@@ -1,4 +1,7 @@
-use std::{collections::BTreeMap, path::PathBuf};
+use std::{
+  collections::BTreeMap,
+  path::{Path, PathBuf},
+};
 
 use anyhow::Result;
 use chrono::prelude::*;
@@ -7,67 +10,67 @@ use serde::{Deserialize, Serialize};
 use url::Url;
 
 #[derive(Debug, Deserialize, Serialize)]
-pub struct Response {
-  pub data: Data,
-  pub included: Vec<Included>,
+struct Response {
+  data: Data,
+  included: Vec<Included>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "kebab-case")]
-pub struct Data {
+struct Data {
   #[serde(rename = "type")]
-  pub dtype: String,
-  pub id: String,
-  pub attributes: Attributes,
-  pub relationships: serde_json::Value,
-  pub links: serde_json::Value,
+  dtype: String,
+  id: String,
+  attributes: Attributes,
+  relationships: serde_json::Value,
+  links: serde_json::Value,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "kebab-case")]
-pub struct Attributes {
-  pub downloads: u64,
-  pub full_name: String,
-  pub name: String,
-  pub namespace: String,
-  pub owner_name: String,
-  pub provider_logo_url: String,
-  pub provider_name: String,
-  pub source: String,
-  pub verified: bool,
+struct Attributes {
+  downloads: u64,
+  full_name: String,
+  name: String,
+  namespace: String,
+  owner_name: String,
+  provider_logo_url: String,
+  provider_name: String,
+  source: String,
+  verified: bool,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "kebab-case")]
-pub struct Included {
+struct Included {
   #[serde(rename = "type")]
-  pub itype: String,
-  pub id: String,
-  pub attributes: IncludedAttributes,
-  pub links: serde_json::Value,
+  itype: String,
+  id: String,
+  attributes: IncludedAttributes,
+  links: serde_json::Value,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "kebab-case")]
-pub struct IncludedAttributes {
-  pub created_at: String,
-  pub description: String,
-  pub downloads: u64,
-  pub published_at: String,
-  pub source: String,
-  pub updated_at: String,
-  pub version: String,
+struct IncludedAttributes {
+  created_at: String,
+  description: String,
+  downloads: u64,
+  published_at: String,
+  source: String,
+  updated_at: String,
+  version: String,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
-pub struct Summary {
-  pub downloads: u64,
-  pub major_version: String,
-  pub created_at: String,
+struct Summary {
+  downloads: u64,
+  major_version: String,
+  created_at: String,
 }
 
 impl Response {
-  pub fn summarize(&self) -> Result<BTreeMap<String, Summary>> {
+  fn summarize(&self) -> Result<BTreeMap<String, Summary>> {
     let mut summary: BTreeMap<String, Summary> = BTreeMap::new();
     for i in self.included.iter() {
       let mut ver = i.attributes.version.split('.');
@@ -97,7 +100,7 @@ impl Response {
     Ok(summary)
   }
 
-  pub fn write(&self, path: PathBuf, data: BTreeMap<String, Summary>) -> Result<()> {
+  fn write(&self, path: PathBuf, data: BTreeMap<String, Summary>) -> Result<()> {
     std::fs::create_dir_all(&path)?;
 
     let data = data.into_values().collect::<Vec<Summary>>();
@@ -110,7 +113,7 @@ impl Response {
   }
 }
 
-pub async fn get(module: &str) -> Result<Response> {
+async fn get(module: &str) -> Result<Response> {
   let url = Url::parse_with_params(
     format!("https://registry.terraform.io/v2/modules/terraform-aws-modules/{module}/aws").as_str(),
     &[("include", "module-versions")],
@@ -125,4 +128,13 @@ pub async fn get(module: &str) -> Result<Response> {
 
   let response: Response = resp.json().await?;
   Ok(response)
+}
+
+pub async fn collect(path: &Path, module: &str) -> Result<()> {
+  // Terraform registry data
+  let registry = get(module).await?;
+  let registry_path = path.join("registry").join(module.to_lowercase());
+  registry.write(registry_path, registry.summarize()?)?;
+
+  Ok(())
 }

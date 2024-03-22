@@ -1,4 +1,8 @@
-use std::{collections::BTreeMap, env, fs, path::PathBuf};
+use std::{
+  collections::BTreeMap,
+  env, fs,
+  path::{Path, PathBuf},
+};
 
 use anyhow::{bail, Result};
 use reqwest::Client;
@@ -10,20 +14,20 @@ const GITHUB_TOKEN_ENV_VAR: &str = "TERRAFORM_MODULE_DATA";
 /// Page Views
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct PageViewsResponse {
-  pub count: u64,
-  pub uniques: u64,
-  pub views: Vec<View>,
+struct PageViewsResponse {
+  count: u64,
+  uniques: u64,
+  views: Vec<View>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct View {
-  pub count: u64,
-  pub timestamp: String,
-  pub uniques: u64,
+struct View {
+  count: u64,
+  timestamp: String,
+  uniques: u64,
 }
 
-pub type PageViewSummary = BTreeMap<String, View>;
+type PageViewSummary = BTreeMap<String, View>;
 
 impl PageViewsResponse {
   /// Load the currently saved data from file
@@ -48,7 +52,7 @@ impl PageViewsResponse {
     Ok(summary)
   }
 
-  pub fn write(self, path: &PathBuf) -> Result<()> {
+  fn write(self, path: &PathBuf) -> Result<()> {
     let filepath = path.join("views.json");
     let summary = self.summarize(&filepath)?;
     std::fs::create_dir_all(path)?;
@@ -60,7 +64,7 @@ impl PageViewsResponse {
   }
 }
 
-pub async fn get_page_views(module: &str) -> Result<PageViewsResponse> {
+async fn get_page_views(module: &str) -> Result<PageViewsResponse> {
   let url = Url::parse(
     format!("https://api.github.com/repos/terraform-aws-modules/terraform-aws-{module}/traffic/views").as_str(),
   )?;
@@ -87,20 +91,20 @@ pub async fn get_page_views(module: &str) -> Result<PageViewsResponse> {
 /// Repository Clones
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct RepositoryCloneResponse {
-  pub count: u64,
-  pub uniques: u64,
-  pub clones: Vec<Clone>,
+struct RepositoryCloneResponse {
+  count: u64,
+  uniques: u64,
+  clones: Vec<Clone>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct Clone {
-  pub count: u64,
-  pub timestamp: String,
-  pub uniques: u64,
+struct Clone {
+  count: u64,
+  timestamp: String,
+  uniques: u64,
 }
 
-pub type RepositoryCloneSummary = BTreeMap<String, Clone>;
+type RepositoryCloneSummary = BTreeMap<String, Clone>;
 
 impl RepositoryCloneResponse {
   /// Load the currently saved data from file
@@ -125,7 +129,7 @@ impl RepositoryCloneResponse {
     Ok(summary)
   }
 
-  pub fn write(self, path: &PathBuf) -> Result<()> {
+  fn write(self, path: &PathBuf) -> Result<()> {
     let filepath = path.join("clones.json");
     let summary = self.summarize(&filepath)?;
     std::fs::create_dir_all(path)?;
@@ -137,7 +141,7 @@ impl RepositoryCloneResponse {
   }
 }
 
-pub async fn get_repository_clones(module: &str) -> Result<RepositoryCloneResponse> {
+async fn get_repository_clones(module: &str) -> Result<RepositoryCloneResponse> {
   let url = Url::parse(
     format!("https://api.github.com/repos/terraform-aws-modules/terraform-aws-{module}/traffic/clones").as_str(),
   )?;
@@ -159,4 +163,15 @@ pub async fn get_repository_clones(module: &str) -> Result<RepositoryCloneRespon
 
   let response: RepositoryCloneResponse = resp.json().await?;
   Ok(response)
+}
+
+pub async fn collect(path: &Path, module: &str) -> Result<()> {
+  // GitHub repository data
+  let gh_path = path.join("github").join(module.to_lowercase());
+  let gh_views = get_page_views(module).await?;
+  gh_views.write(&gh_path)?;
+  let gh_clones = get_repository_clones(module).await?;
+  gh_clones.write(&gh_path)?;
+
+  Ok(())
 }

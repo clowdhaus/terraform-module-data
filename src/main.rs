@@ -1,5 +1,3 @@
-use std::env;
-
 use anyhow::Result;
 use clap::Parser;
 use terraform_module_data::cli as tmd;
@@ -15,9 +13,6 @@ async fn main() -> Result<()> {
     .without_time()
     .finish();
   tracing::subscriber::set_global_default(subscriber).expect("Setting default subscriber failed");
-
-  let cur_exe = env::current_exe()?;
-  let _cur_dir = cur_exe.parent().unwrap().parent().unwrap().parent().unwrap();
 
   match &cli.command {
     tmd::Commands::CollectData(download) => download.get().await,

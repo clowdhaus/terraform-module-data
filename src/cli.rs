@@ -55,18 +55,11 @@ impl Module {
   pub async fn get(&self) -> Result<()> {
     let data_path = PathBuf::from("data");
 
-    // GitHub repository data
-    let gh_path = data_path.join("github").join(self.module.clone().to_lowercase());
-    let gh_views = crate::github::get_page_views(&self.module).await?;
-    gh_views.write(&gh_path)?;
-    let gh_clones = crate::github::get_repository_clones(&self.module).await?;
-    gh_clones.write(&gh_path)?;
+    // GitHub data
+    crate::github::collect(&data_path, &self.module).await?;
 
     // Terraform registry data
-    let registry = crate::registry::get(&self.module).await?;
-    let registry_path = data_path.join("registry").join(self.module.clone().to_lowercase());
-
-    registry.write(registry_path, registry.summarize()?)?;
+    crate::registry::collect(&data_path, &self.module).await?;
 
     Ok(())
   }
