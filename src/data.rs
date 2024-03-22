@@ -59,24 +59,36 @@ pub struct IncludedAttributes {
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Summary {
   pub downloads: u64,
-  pub version: String,
   pub major_version: String,
+  pub created_at: String,
 }
 
 impl Response {
   pub fn summarize(&self) -> Result<BTreeMap<String, Summary>> {
     let mut summary: BTreeMap<String, Summary> = BTreeMap::new();
     for i in self.included.iter() {
-      let major_version = i.attributes.version.split('.').next().unwrap().to_string();
+      let mut ver = i.attributes.version.split('.');
+      let major_version = ver.next().unwrap().to_string();
+      let minor_version = ver.next().unwrap();
+      let patch_version = ver.next().unwrap();
       let key = format!("{:02}", major_version.parse::<u64>().unwrap_or(0));
+
+      if major_version == "0" {
+        continue;
+      }
 
       let record = summary.entry(key).or_insert(Summary {
         downloads: 0,
-        version: major_version.clone(),
         major_version,
+        created_at: "".to_string(),
       });
 
       record.downloads += i.attributes.downloads;
+
+      if minor_version == "0" && patch_version == "0" {
+        let timestamp = chrono::DateTime::parse_from_rfc3339(&i.attributes.created_at)?;
+        record.created_at = timestamp.date_naive().to_string();
+      }
     }
 
     Ok(summary)

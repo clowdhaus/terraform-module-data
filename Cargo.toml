@@ -15,6 +15,7 @@ categories = [
 [dependencies]
 anstyle = "1.0"
 anyhow = "1.0"
+chrono = "0.4"
 clap = { version = "4.2", features = ["derive", "env", "color", "unstable-styles"] }
 clap-verbosity-flag = "2.0"
 itertools = "0.12"
