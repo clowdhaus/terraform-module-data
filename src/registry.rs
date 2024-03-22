@@ -1,6 +1,7 @@
-use std::collections::BTreeMap;
+use std::{collections::BTreeMap, path::PathBuf};
 
 use anyhow::Result;
+use chrono::prelude::*;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use url::Url;
@@ -94,6 +95,18 @@ impl Response {
     }
 
     Ok(summary)
+  }
+
+  pub fn write(&self, path: PathBuf, data: BTreeMap<String, Summary>) -> Result<()> {
+    std::fs::create_dir_all(&path)?;
+
+    let data = data.into_values().collect::<Vec<Summary>>();
+    let utc: DateTime<Utc> = Utc::now();
+    let file = path.join(format!("{}.json", utc.format("%Y-%m-%d")));
+    let json = serde_json::to_string_pretty(&data)?;
+    std::fs::write(file, json)?;
+
+    Ok(())
   }
 }
 
