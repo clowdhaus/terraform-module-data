@@ -41,17 +41,17 @@ pub struct Cli {
 #[derive(Debug, Subcommand)]
 pub enum Commands {
   /// Get module downloads from Terraform registry
-  GetDownloads(Download),
+  CollectData(Module),
 }
 
 #[derive(Args, Debug, Deserialize, Serialize)]
-pub struct Download {
+pub struct Module {
   /// The module to collect download data for
   #[clap(short, long)]
   module: String,
 }
 
-impl Download {
+impl Module {
   pub async fn get(&self) -> Result<()> {
     let data_path = PathBuf::from("data");
 

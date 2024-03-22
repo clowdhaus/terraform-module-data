@@ -20,6 +20,6 @@ async fn main() -> Result<()> {
   let _cur_dir = cur_exe.parent().unwrap().parent().unwrap().parent().unwrap();
 
   match &cli.command {
-    tmd::Commands::GetDownloads(download) => download.get().await,
+    tmd::Commands::CollectData(download) => download.get().await,
   }
 }
