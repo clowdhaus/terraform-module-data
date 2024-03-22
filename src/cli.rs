@@ -5,9 +5,7 @@ use anyhow::Result;
 use chrono::prelude::*;
 use clap::{builder::Styles, Args, Parser, Subcommand};
 use clap_verbosity_flag::Verbosity;
-use reqwest::Client;
 use serde::{Deserialize, Serialize};
-use url::Url;
 
 /// Styles for CLI
 fn get_styles() -> Styles {
@@ -60,29 +58,13 @@ pub struct Download {
 
 impl Download {
   pub async fn get(&self) -> Result<()> {
-    let url = Url::parse_with_params(
-      format!(
-        "https://registry.terraform.io/v2/modules/terraform-aws-modules/{}/aws",
-        self.module
-      )
-      .as_str(),
-      &[("include", "module-versions")],
-    )?;
-
-    let resp = Client::builder()
-      .user_agent("Module Download Data")
-      .build()?
-      .get(url)
-      .send()
-      .await?;
-
-    let response: crate::data::Response = resp.json().await?;
-    self.write(response.summarize()?)?;
+    let registry = crate::registry::get(&self.module).await?;
+    self.write(registry.summarize()?)?;
 
     Ok(())
   }
 
-  pub fn write(&self, data: BTreeMap<String, crate::data::Summary>) -> Result<()> {
+  pub fn write(&self, data: BTreeMap<String, crate::registry::Summary>) -> Result<()> {
     let path = match self.path.as_deref() {
       Some(p) => p.to_path_buf(),
       None => PathBuf::from("data")
@@ -91,7 +73,7 @@ impl Download {
     };
     std::fs::create_dir_all(&path)?;
 
-    let data = data.into_values().collect::<Vec<crate::data::Summary>>();
+    let data = data.into_values().collect::<Vec<crate::registry::Summary>>();
     let utc: DateTime<Utc> = Utc::now();
     let file = path.join(format!("{}.json", utc.format("%Y-%m-%d")));
     let json = serde_json::to_string_pretty(&data)?;

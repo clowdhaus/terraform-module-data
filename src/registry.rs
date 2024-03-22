@@ -1,7 +1,9 @@
 use std::collections::BTreeMap;
 
 use anyhow::Result;
+use reqwest::Client;
 use serde::{Deserialize, Serialize};
+use url::Url;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Response {
@@ -93,4 +95,21 @@ impl Response {
 
     Ok(summary)
   }
+}
+
+pub async fn get(module: &str) -> Result<Response> {
+  let url = Url::parse_with_params(
+    format!("https://registry.terraform.io/v2/modules/terraform-aws-modules/{module}/aws").as_str(),
+    &[("include", "module-versions")],
+  )?;
+
+  let resp = Client::builder()
+    .user_agent("Module Download Data")
+    .build()?
+    .get(url)
+    .send()
+    .await?;
+
+  let response: Response = resp.json().await?;
+  Ok(response)
 }
