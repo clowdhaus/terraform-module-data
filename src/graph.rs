@@ -8,6 +8,7 @@ use plotly::{
   Layout, Plot, Scatter,
 };
 
+#[derive(Debug)]
 pub struct Titles {
   pub title: String,
   pub x_title: String,

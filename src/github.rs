@@ -7,11 +7,11 @@ use std::{
 use anyhow::{bail, Result};
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
+use tracing::{debug, error, info};
 use url::Url;
 
-use crate::CATEGORIES;
-
 const GITHUB_TOKEN_ENV_VAR: &str = "TERRAFORM_MODULE_DATA";
+const NO_ACCESS: [&str; 1] = ["s3-object"];
 
 /// Page Views
 
@@ -36,10 +36,14 @@ impl PageViewsResponse {
   fn get_current(&self, path: &PathBuf) -> Result<PageViewSummary> {
     match fs::read_to_string(path) {
       Ok(data) => {
+        info!("Reading existing data from file: {}", path.display());
         let summary: PageViewSummary = serde_json::from_str(&data)?;
         Ok(summary)
       }
-      Err(_) => Ok(PageViewSummary::new()),
+      Err(_) => {
+        info!("No existing data found for {}, creating new summary", path.display());
+        Ok(PageViewSummary::new())
+      }
     }
   }
 
@@ -50,6 +54,8 @@ impl PageViewsResponse {
       let timestamp = chrono::DateTime::parse_from_rfc3339(&v.timestamp).unwrap();
       summary.insert(timestamp.date_naive().to_string(), v);
     }
+
+    info!("{} summarized", path.display());
 
     Ok(summary)
   }
@@ -67,6 +73,10 @@ impl PageViewsResponse {
 }
 
 async fn get_page_views(module: &str) -> Result<PageViewsResponse> {
+  if NO_ACCESS.contains(&module) {
+    bail!("No access to page views for {}", module);
+  }
+
   let url = Url::parse(
     format!("https://api.github.com/repos/terraform-aws-modules/terraform-aws-{module}/traffic/views").as_str(),
   )?;
@@ -86,8 +96,14 @@ async fn get_page_views(module: &str) -> Result<PageViewsResponse> {
     .send()
     .await?;
 
-  let response: PageViewsResponse = resp.json().await?;
-  Ok(response)
+  if resp.status().is_success() {
+    let response: PageViewsResponse = resp.json().await?;
+    debug!("GET /traffic/views response: {:#?}", response);
+    Ok(response)
+  } else {
+    error!("GET /traffic/views response: {:#?}", resp);
+    bail!("Failed to get page views")
+  }
 }
 
 /// Repository Clones
@@ -113,10 +129,14 @@ impl RepositoryCloneResponse {
   fn get_current(&self, path: &PathBuf) -> Result<RepositoryCloneSummary> {
     match fs::read_to_string(path) {
       Ok(data) => {
+        info!("Reading existing data from file: {}", path.display());
         let summary: RepositoryCloneSummary = serde_json::from_str(&data)?;
         Ok(summary)
       }
-      Err(_) => Ok(RepositoryCloneSummary::new()),
+      Err(_) => {
+        info!("No existing data found for {}, creating new summary", path.display());
+        Ok(RepositoryCloneSummary::new())
+      }
     }
   }
 
@@ -127,6 +147,8 @@ impl RepositoryCloneResponse {
       let timestamp = chrono::DateTime::parse_from_rfc3339(&v.timestamp).unwrap();
       summary.insert(timestamp.date_naive().to_string(), v);
     }
+
+    info!("{} summarized", path.display());
 
     Ok(summary)
   }
@@ -144,6 +166,10 @@ impl RepositoryCloneResponse {
 }
 
 async fn get_repository_clones(module: &str) -> Result<RepositoryCloneResponse> {
+  if NO_ACCESS.contains(&module) {
+    bail!("No access to page views for {}", module);
+  }
+
   let url = Url::parse(
     format!("https://api.github.com/repos/terraform-aws-modules/terraform-aws-{module}/traffic/clones").as_str(),
   )?;
@@ -163,13 +189,21 @@ async fn get_repository_clones(module: &str) -> Result<RepositoryCloneResponse> 
     .send()
     .await?;
 
-  let response: RepositoryCloneResponse = resp.json().await?;
-  Ok(response)
+  if resp.status().is_success() {
+    let response: RepositoryCloneResponse = resp.json().await?;
+    debug!("GET /traffic/clones response: {:#?}", response);
+    Ok(response)
+  } else {
+    error!("GET /traffic/clones response: {:#?}", resp);
+    bail!("Failed to get clones")
+  }
 }
 
+/// Collect module traffic data from GitHub
 pub async fn collect(path: &Path, module: &str) -> Result<()> {
   // GitHub repository data
   let gh_path = path.join("github").join(module.to_lowercase());
+
   let gh_views = get_page_views(module).await?;
   gh_views.write(&gh_path)?;
   let gh_clones = get_repository_clones(module).await?;
@@ -178,16 +212,8 @@ pub async fn collect(path: &Path, module: &str) -> Result<()> {
   Ok(())
 }
 
+/// Graph the data collected and insert into mdbook docs
 pub(crate) fn graph(data_path: &Path) -> Result<()> {
-  // let views = graph_time_series("Repository Page Views", "views", data_path)?;
-  // let clones = graph_time_series("Repository Clones", "clones", data_path)?;
-
-  // let tpl_path = PathBuf::from("src").join("templates").join("github.tpl");
-  // let tpl = fs::read_to_string(tpl_path)?;
-
-  // let out_path = PathBuf::from("docs").join("github.md");
-  // let rendered = tpl.replace("{{ views }}", &views).replace("{{ clones }}", &clones);
-  // fs::write(out_path, rendered)?;
   graph_clones(data_path)?;
   graph_page_views(data_path)?;
 
@@ -249,7 +275,7 @@ fn graph_time_series(title: &str, category: &str, data_type: &str, data_path: &P
     let filepath = entry.path().join(format!("{data_type}.json"));
 
     // If directory is not in category, skip
-    if !CATEGORIES.get(category).unwrap().contains(&dir_name.as_str()) {
+    if !crate::CATEGORIES.get(category).unwrap().contains(&dir_name.as_str()) {
       continue;
     }
 
@@ -284,6 +310,8 @@ fn graph_time_series(title: &str, category: &str, data_type: &str, data_path: &P
     x_title: "Date".to_string(),
     y_title: crate::titlecase(data_type.to_string())?,
   };
+
+  info!("Plotting {} time series", title);
 
   crate::graph::plot_time_series(&html_title, trace_data, titles)
 }

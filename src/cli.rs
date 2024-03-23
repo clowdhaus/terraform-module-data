@@ -3,7 +3,7 @@ use std::path::PathBuf;
 use anstyle::{AnsiColor, Color, Style};
 use anyhow::Result;
 use clap::{builder::Styles, Args, Parser, Subcommand};
-use clap_verbosity_flag::Verbosity;
+use clap_verbosity_flag::{InfoLevel, Verbosity};
 use serde::{Deserialize, Serialize};
 
 /// Styles for CLI
@@ -34,7 +34,7 @@ pub struct Cli {
   pub command: Commands,
 
   #[clap(flatten)]
-  pub verbose: Verbosity,
+  pub verbose: Verbosity<InfoLevel>,
 }
 
 #[derive(Debug, Subcommand)]
