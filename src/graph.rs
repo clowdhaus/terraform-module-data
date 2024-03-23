@@ -37,6 +37,7 @@ pub(crate) fn plot_time_series(name: &str, data: Vec<TraceData>, titles: Titles)
 
   let layout = Layout::new()
     .title(Title::new(&titles.title))
+    .height(750)
     .x_axis(
       Axis::new()
         .title(Title::new(&titles.x_title))
@@ -68,7 +69,7 @@ pub(crate) fn plot_time_series(name: &str, data: Vec<TraceData>, titles: Titles)
     .y_axis(Axis::new().title(Title::new(&titles.y_title)));
   plot.set_layout(layout);
 
-  // plot.show();
+  plot.show();
 
   Ok(plot.to_inline_html(Some(name)))
 }

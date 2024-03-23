@@ -20,6 +20,6 @@ additional-css = [
   "./theme/catppuccin-admonish.css",
 ]
 
-default-theme = "frappe"
+default-theme = "latte"
 preferred-dark-theme = "frappe"
 preferred-light-theme = "latte"
