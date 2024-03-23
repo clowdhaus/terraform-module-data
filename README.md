@@ -28,7 +28,7 @@ This data is what can be found on the `/graphs/traffic` page of the GitHub repos
 
 ![GitHub traffic graph](./docs/assets/github.png)
 
-2. Terraform registry - module downloads
+1. Terraform registry - module downloads
 
 This data is what can be found on the registry page of the module. The registry continuously updates this data, so this project collects it daily as a "snapshot in time".
 

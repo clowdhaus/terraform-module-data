@@ -27,7 +27,6 @@ fn get_styles() -> Styles {
 
 #[derive(Debug, Parser)]
 #[command(author, about, version)]
-#[command(author, version, about)]
 #[command(propagate_version = true)]
 #[command(styles=get_styles())]
 pub struct Cli {

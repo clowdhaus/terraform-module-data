@@ -3,8 +3,7 @@ use std::path::Path;
 use anyhow::{Ok, Result};
 use chrono::NaiveDate;
 use plotly::{
-  color::Rgb,
-  common::{Line, Marker, Mode, Title},
+  common::{Mode, Title},
   layout::{Axis, RangeSelector, RangeSlider, SelectorButton, SelectorStep, StepMode},
   Layout, Plot, Scatter,
 };
@@ -21,16 +20,20 @@ pub fn graph(data_path: &Path, _assets_path: &Path) -> Result<()> {
   Ok(())
 }
 
-pub(crate) fn plot_time_series(x_data: Vec<NaiveDate>, y_data: Vec<String>, titles: Titles) -> Result<()> {
-  let trace = Scatter::new(x_data, y_data).mode(Mode::LinesMarkers).marker(
-    Marker::new()
-      .color(Rgb::new(227, 61, 148))
-      .size(4)
-      .line(Line::new().color(Rgb::new(227, 61, 148)).width(1.0)),
-  );
+#[derive(Default)]
+pub struct TraceData {
+  pub name: String,
+  pub x_data: Vec<NaiveDate>,
+  pub y_data: Vec<String>,
+}
 
+pub(crate) fn plot_time_series(name: &str, data: Vec<TraceData>, titles: Titles) -> Result<String> {
   let mut plot = Plot::new();
-  plot.add_trace(trace);
+
+  for d in data.into_iter() {
+    let trace = Scatter::new(d.x_data, d.y_data).mode(Mode::Lines).name(d.name);
+    plot.add_trace(trace);
+  }
 
   let layout = Layout::new()
     .title(Title::new(&titles.title))
@@ -65,12 +68,7 @@ pub(crate) fn plot_time_series(x_data: Vec<NaiveDate>, y_data: Vec<String>, titl
     .y_axis(Axis::new().title(Title::new(&titles.y_title)));
   plot.set_layout(layout);
 
-  plot.show();
+  // plot.show();
 
-  println!(
-    "{}",
-    plot.to_inline_html(Some("time_series_with_range_selector_buttons"))
-  );
-
-  Ok(())
+  Ok(plot.to_inline_html(Some(name)))
 }

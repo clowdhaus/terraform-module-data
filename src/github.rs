@@ -177,25 +177,62 @@ pub async fn collect(path: &Path, module: &str) -> Result<()> {
 }
 
 pub(crate) fn graph(data_path: &Path) -> Result<()> {
-  let path = data_path.join("github").join("eks").join("views.json");
+  let views = graph_time_series("Repository Page Views", "views", data_path)?;
+  let clones = graph_time_series("Repository Clones", "clones", data_path)?;
 
-  let data = fs::read_to_string(path)?;
-  let views: PageViewSummary = serde_json::from_str(&data)?;
+  let tpl_path = PathBuf::from("src").join("templates").join("github.tpl");
+  let tpl = fs::read_to_string(tpl_path)?;
 
-  let mut x_data = vec![];
-  let mut y_data = vec![];
+  let out_path = PathBuf::from("docs").join("github.md");
+  let rendered = tpl.replace("{{ views }}", &views).replace("{{ clones }}", &clones);
+  fs::write(out_path, rendered)?;
 
-  for (_, v) in views.iter() {
-    let timestamp = chrono::DateTime::parse_from_rfc3339(&v.timestamp).unwrap();
-    x_data.push(timestamp.date_naive());
-    y_data.push(v.count.to_string());
+  Ok(())
+}
+
+fn graph_time_series(title: &str, data_type: &str, data_path: &Path) -> Result<String> {
+  let mut trace_data = Vec::new();
+
+  for entry in fs::read_dir(data_path.join("github"))? {
+    let entry = entry?;
+    let dir_name = entry.path().file_stem().unwrap().to_str().unwrap().to_owned();
+    let filepath = entry.path().join(format!("{data_type}.json"));
+
+    let data = fs::read_to_string(filepath)?;
+    let views: PageViewSummary = serde_json::from_str(&data)?;
+
+    let mut x_data = vec![];
+    let mut y_data = vec![];
+
+    for (_, v) in views.iter() {
+      let timestamp = chrono::DateTime::parse_from_rfc3339(&v.timestamp).unwrap();
+      x_data.push(timestamp.date_naive());
+      y_data.push(v.count.to_string());
+    }
+
+    trace_data.push(crate::graph::TraceData {
+      name: dir_name,
+      x_data,
+      y_data,
+    });
   }
 
+  // Ugly way of title casing a string
+  let mut data_type = data_type.to_string();
+  let y_title = data_type.remove(0).to_uppercase().to_string() + &data_type;
+
+  let title = title.to_string();
+  let html_title = title
+    .split_whitespace()
+    .map(|x| x.to_string().to_lowercase())
+    .collect::<Vec<String>>()
+    .join("_");
+
   let titles = crate::graph::Titles {
-    title: "EKS Module Page Views".to_string(),
+    title: title.to_string(),
     x_title: "Date".to_string(),
-    y_title: "Views".to_string(),
+    y_title,
   };
 
-  crate::graph::plot_time_series(x_data, y_data, titles)
+  crate::graph::plot_time_series(&html_title, trace_data, titles)
 }
