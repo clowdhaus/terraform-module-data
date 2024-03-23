@@ -1,0 +1,38 @@
+name: Update data
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 23 * * *'
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: nightly
+          components: rust-src
+
+      - name: Build
+        run: cargo build --release
+
+      - name: Update
+        run: ./collect.sh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN_ENV_VAR }}
+          GITHUB_TOKEN_ENV_VAR: ${{ secrets.GITHUB_TOKEN_ENV_VAR }}
+
+      - name: Commit & push
+        uses: EndBug/add-and-commit@v9
+        with:
+          author_name: bryantbiggs
+          author_email: ${{ secrets.AUTHOR_EMAIL }}
+          message: 'chore: Daily data collection and graph update'
+          push: true
