@@ -9,6 +9,8 @@ use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use url::Url;
 
+use crate::CATEGORIES;
+
 const GITHUB_TOKEN_ENV_VAR: &str = "TERRAFORM_MODULE_DATA";
 
 /// Page Views
@@ -177,26 +179,79 @@ pub async fn collect(path: &Path, module: &str) -> Result<()> {
 }
 
 pub(crate) fn graph(data_path: &Path) -> Result<()> {
-  let views = graph_time_series("Repository Page Views", "views", data_path)?;
-  let clones = graph_time_series("Repository Clones", "clones", data_path)?;
+  // let views = graph_time_series("Repository Page Views", "views", data_path)?;
+  // let clones = graph_time_series("Repository Clones", "clones", data_path)?;
 
-  let tpl_path = PathBuf::from("src").join("templates").join("github.tpl");
-  let tpl = fs::read_to_string(tpl_path)?;
+  // let tpl_path = PathBuf::from("src").join("templates").join("github.tpl");
+  // let tpl = fs::read_to_string(tpl_path)?;
 
-  let out_path = PathBuf::from("docs").join("github.md");
-  let rendered = tpl.replace("{{ views }}", &views).replace("{{ clones }}", &clones);
-  fs::write(out_path, rendered)?;
+  // let out_path = PathBuf::from("docs").join("github.md");
+  // let rendered = tpl.replace("{{ views }}", &views).replace("{{ clones }}", &clones);
+  // fs::write(out_path, rendered)?;
+  graph_clones(data_path)?;
+  graph_page_views(data_path)?;
 
   Ok(())
 }
 
-fn graph_time_series(title: &str, data_type: &str, data_path: &Path) -> Result<String> {
+fn graph_clones(data_path: &Path) -> Result<()> {
+  let title = "Repository Clones";
+
+  let data = graph_time_series(title, "data", "clones", data_path)?;
+  let compute = graph_time_series(title, "compute", "clones", data_path)?;
+  let serverless = graph_time_series(title, "serverless", "views", data_path)?;
+  let network = graph_time_series(title, "network", "clones", data_path)?;
+  let other = graph_time_series(title, "other", "clones", data_path)?;
+
+  let tpl_path = PathBuf::from("src").join("templates").join("github-clones.tpl");
+  let tpl = fs::read_to_string(tpl_path)?;
+
+  let out_path = PathBuf::from("docs").join("github-clones.md");
+  let rendered = tpl
+    .replace("{{ data }}", &data)
+    .replace("{{ compute }}", &compute)
+    .replace("{{ serverless }}", &serverless)
+    .replace("{{ network }}", &network)
+    .replace("{{ other }}", &other);
+
+  fs::write(out_path, rendered).map_err(Into::into)
+}
+
+fn graph_page_views(data_path: &Path) -> Result<()> {
+  let title = "Repository Page Views";
+
+  let data = graph_time_series(title, "data", "views", data_path)?;
+  let compute = graph_time_series(title, "compute", "views", data_path)?;
+  let serverless = graph_time_series(title, "serverless", "views", data_path)?;
+  let network = graph_time_series(title, "network", "views", data_path)?;
+  let other = graph_time_series(title, "other", "views", data_path)?;
+
+  let tpl_path = PathBuf::from("src").join("templates").join("github-page-views.tpl");
+  let tpl = fs::read_to_string(tpl_path)?;
+
+  let out_path = PathBuf::from("docs").join("github-page-views.md");
+  let rendered = tpl
+    .replace("{{ data }}", &data)
+    .replace("{{ compute }}", &compute)
+    .replace("{{ serverless }}", &serverless)
+    .replace("{{ network }}", &network)
+    .replace("{{ other }}", &other);
+
+  fs::write(out_path, rendered).map_err(Into::into)
+}
+
+fn graph_time_series(title: &str, category: &str, data_type: &str, data_path: &Path) -> Result<String> {
   let mut trace_data = Vec::new();
 
   for entry in fs::read_dir(data_path.join("github"))? {
     let entry = entry?;
     let dir_name = entry.path().file_stem().unwrap().to_str().unwrap().to_owned();
     let filepath = entry.path().join(format!("{data_type}.json"));
+
+    // If directory is not in category, skip
+    if !CATEGORIES.get(category).unwrap().contains(&dir_name.as_str()) {
+      continue;
+    }
 
     let data = fs::read_to_string(filepath)?;
     let views: PageViewSummary = serde_json::from_str(&data)?;
@@ -217,11 +272,7 @@ fn graph_time_series(title: &str, data_type: &str, data_path: &Path) -> Result<S
     });
   }
 
-  // Ugly way of title casing a string
-  let mut data_type = data_type.to_string();
-  let y_title = data_type.remove(0).to_uppercase().to_string() + &data_type;
-
-  let title = title.to_string();
+  let title = format!("{} - {}", crate::titlecase(category.to_string())?, title);
   let html_title = title
     .split_whitespace()
     .map(|x| x.to_string().to_lowercase())
@@ -231,7 +282,7 @@ fn graph_time_series(title: &str, data_type: &str, data_path: &Path) -> Result<S
   let titles = crate::graph::Titles {
     title: title.to_string(),
     x_title: "Date".to_string(),
-    y_title,
+    y_title: crate::titlecase(data_type.to_string())?,
   };
 
   crate::graph::plot_time_series(&html_title, trace_data, titles)
