@@ -1,5 +1,9 @@
 # GitHub Repository Page Views
 
+## All
+
+{{ all }}
+
 ## Compute
 
 {{ compute }}

@@ -222,17 +222,19 @@ pub(crate) fn graph(data_path: &Path) -> Result<()> {
 fn graph_clones(data_path: &Path) -> Result<()> {
   let title = "Repository Clones";
 
-  let data = create_time_series_graph(title, crate::DATA, "clones", data_path)?;
-  let compute = create_time_series_graph(title, crate::COMPUTE, "clones", data_path)?;
-  let serverless = create_time_series_graph(title, crate::SERVERLESS, "views", data_path)?;
-  let network = create_time_series_graph(title, crate::NETWORKING, "clones", data_path)?;
-  let other = create_time_series_graph(title, crate::OTHER, "clones", data_path)?;
+  let all = create_time_series_graph(title, None, "clones", data_path)?;
+  let data = create_time_series_graph(title, Some(crate::DATA), "clones", data_path)?;
+  let compute = create_time_series_graph(title, Some(crate::COMPUTE), "clones", data_path)?;
+  let serverless = create_time_series_graph(title, Some(crate::SERVERLESS), "views", data_path)?;
+  let network = create_time_series_graph(title, Some(crate::NETWORKING), "clones", data_path)?;
+  let other = create_time_series_graph(title, Some(crate::OTHER), "clones", data_path)?;
 
   let tpl_path = PathBuf::from("src").join("templates").join("github-clones.tpl");
   let tpl = fs::read_to_string(tpl_path)?;
 
   let out_path = PathBuf::from("docs").join("github-clones.md");
   let rendered = tpl
+    .replace("{{ all }}", &all)
     .replace("{{ data }}", &data)
     .replace("{{ compute }}", &compute)
     .replace("{{ serverless }}", &serverless)
@@ -245,17 +247,19 @@ fn graph_clones(data_path: &Path) -> Result<()> {
 fn graph_page_views(data_path: &Path) -> Result<()> {
   let title = "Repository Page Views";
 
-  let data = create_time_series_graph(title, crate::DATA, "views", data_path)?;
-  let compute = create_time_series_graph(title, crate::COMPUTE, "views", data_path)?;
-  let serverless = create_time_series_graph(title, crate::SERVERLESS, "views", data_path)?;
-  let network = create_time_series_graph(title, crate::NETWORKING, "views", data_path)?;
-  let other = create_time_series_graph(title, crate::OTHER, "views", data_path)?;
+  let all = create_time_series_graph(title, None, "views", data_path)?;
+  let data = create_time_series_graph(title, Some(crate::DATA), "views", data_path)?;
+  let compute = create_time_series_graph(title, Some(crate::COMPUTE), "views", data_path)?;
+  let serverless = create_time_series_graph(title, Some(crate::SERVERLESS), "views", data_path)?;
+  let network = create_time_series_graph(title, Some(crate::NETWORKING), "views", data_path)?;
+  let other = create_time_series_graph(title, Some(crate::OTHER), "views", data_path)?;
 
   let tpl_path = PathBuf::from("src").join("templates").join("github-page-views.tpl");
   let tpl = fs::read_to_string(tpl_path)?;
 
   let out_path = PathBuf::from("docs").join("github-page-views.md");
   let rendered = tpl
+    .replace("{{ all }}", &all)
     .replace("{{ data }}", &data)
     .replace("{{ compute }}", &compute)
     .replace("{{ serverless }}", &serverless)
@@ -265,7 +269,7 @@ fn graph_page_views(data_path: &Path) -> Result<()> {
   fs::write(out_path, rendered).map_err(Into::into)
 }
 
-fn create_time_series_graph(title: &str, category: &str, data_type: &str, data_path: &Path) -> Result<String> {
+fn create_time_series_graph(title: &str, category: Option<&str>, data_type: &str, data_path: &Path) -> Result<String> {
   let mut trace_data = Vec::new();
 
   for entry in fs::read_dir(data_path.join("github"))? {
@@ -274,8 +278,11 @@ fn create_time_series_graph(title: &str, category: &str, data_type: &str, data_p
     let filepath = entry.path().join(format!("{data_type}.json"));
 
     // If directory is not in category, skip
-    if !crate::CATEGORIES.get(category).unwrap().contains(&dir_name.as_str()) {
-      continue;
+    // If no category provided, return all
+    if let Some(c) = category {
+      if !crate::CATEGORIES.get(c).unwrap().contains(&dir_name.as_str()) {
+        continue;
+      }
     }
 
     let data = fs::read_to_string(filepath)?;
@@ -297,6 +304,7 @@ fn create_time_series_graph(title: &str, category: &str, data_type: &str, data_p
     });
   }
 
+  let category = category.unwrap_or("all");
   let title = format!("{} - {}", crate::titlecase(category.to_string())?, title);
   let html_title = title
     .split_whitespace()

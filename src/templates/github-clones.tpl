@@ -1,5 +1,9 @@
 # GitHub Repository Clones
 
+## All
+
+{{ all }}
+
 ## Compute
 
 {{ compute }}
