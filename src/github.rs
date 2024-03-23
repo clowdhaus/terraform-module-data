@@ -175,3 +175,27 @@ pub async fn collect(path: &Path, module: &str) -> Result<()> {
 
   Ok(())
 }
+
+pub(crate) fn graph(data_path: &Path) -> Result<()> {
+  let path = data_path.join("github").join("eks").join("views.json");
+
+  let data = fs::read_to_string(path)?;
+  let views: PageViewSummary = serde_json::from_str(&data)?;
+
+  let mut x_data = vec![];
+  let mut y_data = vec![];
+
+  for (_, v) in views.iter() {
+    let timestamp = chrono::DateTime::parse_from_rfc3339(&v.timestamp).unwrap();
+    x_data.push(timestamp.date_naive());
+    y_data.push(v.count.to_string());
+  }
+
+  let titles = crate::graph::Titles {
+    title: "EKS Module Page Views".to_string(),
+    x_title: "Date".to_string(),
+    y_title: "Views".to_string(),
+  };
+
+  crate::graph::plot_time_series(x_data, y_data, titles)
+}

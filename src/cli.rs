@@ -40,8 +40,11 @@ pub struct Cli {
 
 #[derive(Debug, Subcommand)]
 pub enum Commands {
-  /// Get module downloads from Terraform registry
+  /// Collect module data from the Terraform registry and GitHub repositories
   CollectData(Module),
+
+  /// Generate graphs from the collected data
+  Graph,
 }
 
 #[derive(Args, Debug, Deserialize, Serialize)]
@@ -52,9 +55,7 @@ pub struct Module {
 }
 
 impl Module {
-  pub async fn get(&self) -> Result<()> {
-    let data_path = PathBuf::from("data");
-
+  pub async fn collect(&self, data_path: PathBuf) -> Result<()> {
     // GitHub data
     crate::github::collect(&data_path, &self.module).await?;
 
