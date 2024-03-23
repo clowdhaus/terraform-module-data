@@ -26,13 +26,13 @@ Data is collected from the following sources:
 
 This data is what can be found on the `/graphs/traffic` page of the GitHub repository. GitHub provides data for the last 14 days, aggregated by day.
 
-![GitHub traffic graph](./assets/github.png)
+![GitHub traffic graph](./docs/assets/github.png)
 
 2. Terraform registry - module downloads
 
 This data is what can be found on the registry page of the module. The registry continuously updates this data, so this project collects it daily as a "snapshot in time".
 
-![Terraform registry downloads](./assets/registry.png)
+![Terraform registry downloads](./docs/assets/registry.png)
 
 ### Data Directory Structure
 
