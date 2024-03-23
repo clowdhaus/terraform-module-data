@@ -142,7 +142,6 @@ impl RepositoryCloneResponse {
 
   fn summarize(self, path: &PathBuf) -> Result<RepositoryCloneSummary> {
     let mut summary = self.get_current(path)?;
-
     for v in self.clones.into_iter() {
       let timestamp = chrono::DateTime::parse_from_rfc3339(&v.timestamp).unwrap();
       summary.insert(timestamp.date_naive().to_string(), v);
@@ -223,11 +222,11 @@ pub(crate) fn graph(data_path: &Path) -> Result<()> {
 fn graph_clones(data_path: &Path) -> Result<()> {
   let title = "Repository Clones";
 
-  let data = graph_time_series(title, "data", "clones", data_path)?;
-  let compute = graph_time_series(title, "compute", "clones", data_path)?;
-  let serverless = graph_time_series(title, "serverless", "views", data_path)?;
-  let network = graph_time_series(title, "network", "clones", data_path)?;
-  let other = graph_time_series(title, "other", "clones", data_path)?;
+  let data = create_time_series_graph(title, crate::DATA, "clones", data_path)?;
+  let compute = create_time_series_graph(title, crate::COMPUTE, "clones", data_path)?;
+  let serverless = create_time_series_graph(title, crate::SERVERLESS, "views", data_path)?;
+  let network = create_time_series_graph(title, crate::NETWORKING, "clones", data_path)?;
+  let other = create_time_series_graph(title, crate::OTHER, "clones", data_path)?;
 
   let tpl_path = PathBuf::from("src").join("templates").join("github-clones.tpl");
   let tpl = fs::read_to_string(tpl_path)?;
@@ -246,11 +245,11 @@ fn graph_clones(data_path: &Path) -> Result<()> {
 fn graph_page_views(data_path: &Path) -> Result<()> {
   let title = "Repository Page Views";
 
-  let data = graph_time_series(title, "data", "views", data_path)?;
-  let compute = graph_time_series(title, "compute", "views", data_path)?;
-  let serverless = graph_time_series(title, "serverless", "views", data_path)?;
-  let network = graph_time_series(title, "network", "views", data_path)?;
-  let other = graph_time_series(title, "other", "views", data_path)?;
+  let data = create_time_series_graph(title, crate::DATA, "views", data_path)?;
+  let compute = create_time_series_graph(title, crate::COMPUTE, "views", data_path)?;
+  let serverless = create_time_series_graph(title, crate::SERVERLESS, "views", data_path)?;
+  let network = create_time_series_graph(title, crate::NETWORKING, "views", data_path)?;
+  let other = create_time_series_graph(title, crate::OTHER, "views", data_path)?;
 
   let tpl_path = PathBuf::from("src").join("templates").join("github-page-views.tpl");
   let tpl = fs::read_to_string(tpl_path)?;
@@ -266,7 +265,7 @@ fn graph_page_views(data_path: &Path) -> Result<()> {
   fs::write(out_path, rendered).map_err(Into::into)
 }
 
-fn graph_time_series(title: &str, category: &str, data_type: &str, data_path: &Path) -> Result<String> {
+fn create_time_series_graph(title: &str, category: &str, data_type: &str, data_path: &Path) -> Result<String> {
   let mut trace_data = Vec::new();
 
   for entry in fs::read_dir(data_path.join("github"))? {

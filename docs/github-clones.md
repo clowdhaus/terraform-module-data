@@ -309,6 +309,11 @@
     "title": {
       "text": "Compute - Repository Clones"
     },
+    "legend": {
+      "title": {
+        "text": "Module"
+      }
+    },
     "height": 650,
     "xaxis": {
       "title": {
@@ -871,6 +876,11 @@
     "title": {
       "text": "Serverless - Repository Clones"
     },
+    "legend": {
+      "title": {
+        "text": "Module"
+      }
+    },
     "height": 650,
     "xaxis": {
       "title": {
@@ -1418,6 +1428,11 @@
     "title": {
       "text": "Data - Repository Clones"
     },
+    "legend": {
+      "title": {
+        "text": "Module"
+      }
+    },
     "height": 650,
     "xaxis": {
       "title": {
@@ -1470,9 +1485,9 @@
 
 ## Network
 
-<div id="network_-_repository_clones" class="plotly-graph-div" style="height:100%; width:100%;"></div>
+<div id="networking_-_repository_clones" class="plotly-graph-div" style="height:100%; width:100%;"></div>
 <script type="text/javascript">
-    Plotly.newPlot("network_-_repository_clones", {
+    Plotly.newPlot("networking_-_repository_clones", {
   "data": [
     {
       "type": "scatter",
@@ -1906,7 +1921,12 @@
   ],
   "layout": {
     "title": {
-      "text": "Network - Repository Clones"
+      "text": "Networking - Repository Clones"
+    },
+    "legend": {
+      "title": {
+        "text": "Module"
+      }
     },
     "height": 650,
     "xaxis": {
@@ -2508,6 +2528,11 @@
   "layout": {
     "title": {
       "text": "Other - Repository Clones"
+    },
+    "legend": {
+      "title": {
+        "text": "Module"
+      }
     },
     "height": 650,
     "xaxis": {

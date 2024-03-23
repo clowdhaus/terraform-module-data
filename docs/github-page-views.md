@@ -317,6 +317,11 @@
     "title": {
       "text": "Compute - Repository Page Views"
     },
+    "legend": {
+      "title": {
+        "text": "Module"
+      }
+    },
     "height": 650,
     "xaxis": {
       "title": {
@@ -879,6 +884,11 @@
     "title": {
       "text": "Serverless - Repository Page Views"
     },
+    "legend": {
+      "title": {
+        "text": "Module"
+      }
+    },
     "height": 650,
     "xaxis": {
       "title": {
@@ -1440,6 +1450,11 @@
     "title": {
       "text": "Data - Repository Page Views"
     },
+    "legend": {
+      "title": {
+        "text": "Module"
+      }
+    },
     "height": 650,
     "xaxis": {
       "title": {
@@ -1492,9 +1507,9 @@
 
 ## Network
 
-<div id="network_-_repository_page_views" class="plotly-graph-div" style="height:100%; width:100%;"></div>
+<div id="networking_-_repository_page_views" class="plotly-graph-div" style="height:100%; width:100%;"></div>
 <script type="text/javascript">
-    Plotly.newPlot("network_-_repository_page_views", {
+    Plotly.newPlot("networking_-_repository_page_views", {
   "data": [
     {
       "type": "scatter",
@@ -1916,7 +1931,12 @@
   ],
   "layout": {
     "title": {
-      "text": "Network - Repository Page Views"
+      "text": "Networking - Repository Page Views"
+    },
+    "legend": {
+      "title": {
+        "text": "Module"
+      }
     },
     "height": 650,
     "xaxis": {
@@ -2494,6 +2514,11 @@
   "layout": {
     "title": {
       "text": "Other - Repository Page Views"
+    },
+    "legend": {
+      "title": {
+        "text": "Module"
+      }
     },
     "height": 650,
     "xaxis": {

@@ -1,0 +1,11 @@
+/* https: //github.com/rust-lang/mdBook/blob/master/src/theme/css/variables.css */
+:root {
+  --sidebar-width: 200px;
+  --sidebar-resize-indicator-width: 8px;
+  --sidebar-resize-indicator-space: 2px;
+  --page-padding: 15px;
+  --content-max-width: 950px;
+  --menu-bar-height: 50px;
+  --mono-font: "Source Code Pro", Consolas, "Ubuntu Mono", Menlo, "DejaVu Sans Mono", monospace, monospace;
+  --code-font-size: 0.875em
+}

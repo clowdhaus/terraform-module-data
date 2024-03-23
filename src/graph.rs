@@ -4,7 +4,7 @@ use anyhow::{Ok, Result};
 use chrono::NaiveDate;
 use plotly::{
   common::{Mode, Title},
-  layout::{Axis, RangeSelector, RangeSlider, SelectorButton, SelectorStep, StepMode},
+  layout::{Axis, Legend, RangeSelector, RangeSlider, SelectorButton, SelectorStep, StepMode},
   Layout, Plot, Scatter,
 };
 
@@ -38,6 +38,7 @@ pub(crate) fn plot_time_series(name: &str, data: Vec<TraceData>, titles: Titles)
 
   let layout = Layout::new()
     .title(Title::new(&titles.title))
+    .legend(Legend::new().title(Title::new("Module")))
     .height(650)
     .x_axis(
       Axis::new()

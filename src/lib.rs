@@ -12,10 +12,16 @@ use std::{
 
 use anyhow::Result;
 
+const DATA: &str = "data";
+const COMPUTE: &str = "compute";
+const SERVERLESS: &str = "serverless";
+const NETWORKING: &str = "networking";
+const OTHER: &str = "other";
+
 static CATEGORIES: LazyLock<HashMap<&str, HashSet<&str>>> = LazyLock::new(|| {
   HashMap::from([
     (
-      "data",
+      DATA,
       HashSet::from([
         "batch",
         "efs",
@@ -35,7 +41,7 @@ static CATEGORIES: LazyLock<HashMap<&str, HashSet<&str>>> = LazyLock::new(|| {
       ]),
     ),
     (
-      "compute",
+      COMPUTE,
       HashSet::from([
         "app-runner",
         "autoscaling",
@@ -48,7 +54,7 @@ static CATEGORIES: LazyLock<HashMap<&str, HashSet<&str>>> = LazyLock::new(|| {
       ]),
     ),
     (
-      "serverless",
+      SERVERLESS,
       HashSet::from([
         "appconfig",
         "app-runner",
@@ -66,7 +72,7 @@ static CATEGORIES: LazyLock<HashMap<&str, HashSet<&str>>> = LazyLock::new(|| {
       ]),
     ),
     (
-      "network",
+      NETWORKING,
       HashSet::from([
         "vpc",
         "security-group",
@@ -82,7 +88,7 @@ static CATEGORIES: LazyLock<HashMap<&str, HashSet<&str>>> = LazyLock::new(|| {
       ]),
     ),
     (
-      "other",
+      OTHER,
       HashSet::from([
         "iam",
         "acm",
