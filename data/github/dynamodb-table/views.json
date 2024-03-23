@@ -1,8 +1,8 @@
 {
   "2024-03-09": {
-    "count": 31,
+    "count": 19,
     "timestamp": "2024-03-09T00:00:00Z",
-    "uniques": 2
+    "uniques": 1
   },
   "2024-03-10": {
     "count": 49,
@@ -70,8 +70,8 @@
     "uniques": 55
   },
   "2024-03-23": {
-    "count": 34,
+    "count": 44,
     "timestamp": "2024-03-23T00:00:00Z",
-    "uniques": 9
+    "uniques": 12
   }
 }
