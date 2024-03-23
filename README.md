@@ -4,7 +4,7 @@ Data about Terraform module usage
 
 ## Usage
 
-:warning: This only works for modules in the [`terraform-aws-modules`](https://github.com/terraform-aws-modules) organization. 
+:warning: This only works for modules in the [`terraform-aws-modules`](https://github.com/terraform-aws-modules) organization.
 
 To collect data about a module, run the following command:
 
@@ -57,3 +57,12 @@ data/
    │  └─ ...
    └─ ...
 ```
+
+## Development
+
+To build and run locally, you will need to install [mdbook](https://rust-lang.github.io/mdBook/guide/installation.html)
+
+- The theme(s) are provided by <https://github.com/catppuccin/mdBook>
+  - `cargo (bin)install mdbook-catppuccin`
+- Link checking is provided by <https://github.com/Michael-F-Bryan/mdbook-linkcheck>
+  - `cargo (bin)install mdbook-linkcheck`
