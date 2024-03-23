@@ -26,8 +26,8 @@ jobs:
       - name: Update
         run: ./collect.sh
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN_ENV_VAR }}
-          GITHUB_TOKEN_ENV_VAR: ${{ secrets.GITHUB_TOKEN_ENV_VAR }}
+          GH_TOKEN: ${{ secrets.TERRAFORM_MODULE_DATA }}
+          TERRAFORM_MODULE_DATA: ${{ secrets.TERRAFORM_MODULE_DATA }}
 
       - name: Commit & push
         uses: EndBug/add-and-commit@v9
