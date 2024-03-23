@@ -1,6 +1,12 @@
-# Terraform module data
-
-Data about Terraform module usage
+<div align="center">
+  <h1>Terraform Module Data</h1>
+  <p><strong>Data about Terraform module usage</strong></p>
+  <p>
+    <a href="https://clowdhaus.github.io/terraform-module-data/">
+        clowdhaus.github.io/terraform-module-data
+    </a>
+  </p>
+</div>
 
 ## Usage
 
