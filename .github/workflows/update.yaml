@@ -31,6 +31,9 @@ jobs:
           GH_TOKEN: ${{ secrets.TERRAFORM_MODULE_DATA }}
           TERRAFORM_MODULE_DATA: ${{ secrets.TERRAFORM_MODULE_DATA }}
 
+      - name: Pre-commit
+        uses: pre-commit/action@v3.0.1
+
       - name: Commit & push
         uses: EndBug/add-and-commit@v9
         with:
