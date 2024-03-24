@@ -36,6 +36,7 @@ jobs:
 
       - name: Commit & push
         uses: EndBug/add-and-commit@v9
+        if: always()
         with:
           author_name: bryantbiggs
           author_email: ${{ secrets.AUTHOR_EMAIL }}
