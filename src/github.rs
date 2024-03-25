@@ -225,7 +225,7 @@ fn graph_clones(data_path: &Path) -> Result<()> {
   let all = create_time_series_graph(title, None, "clones", data_path)?;
   let data = create_time_series_graph(title, Some(crate::DATA), "clones", data_path)?;
   let compute = create_time_series_graph(title, Some(crate::COMPUTE), "clones", data_path)?;
-  let serverless = create_time_series_graph(title, Some(crate::SERVERLESS), "views", data_path)?;
+  let serverless = create_time_series_graph(title, Some(crate::SERVERLESS), "clones", data_path)?;
   let network = create_time_series_graph(title, Some(crate::NETWORKING), "clones", data_path)?;
   let other = create_time_series_graph(title, Some(crate::OTHER), "clones", data_path)?;
 
