@@ -73,5 +73,10 @@
     "count": 32,
     "timestamp": "2024-03-25T00:00:00Z",
     "uniques": 6
+  },
+  "2024-03-26": {
+    "count": 79,
+    "timestamp": "2024-03-26T00:00:00Z",
+    "uniques": 9
   }
 }
