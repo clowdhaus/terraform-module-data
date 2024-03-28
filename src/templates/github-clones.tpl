@@ -1,5 +1,7 @@
 # GitHub Repository Clones
 
+This data was last refreshed at `{{ date }} UTC`
+
 ## All
 
 {{ all }}

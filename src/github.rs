@@ -213,13 +213,15 @@ pub async fn collect(path: &Path, module: &str) -> Result<()> {
 
 /// Graph the data collected and insert into mdbook docs
 pub(crate) fn graph(data_path: &Path) -> Result<()> {
-  graph_clones(data_path)?;
-  graph_page_views(data_path)?;
+  let timestamp = chrono::Local::now().to_utc().format("%Y-%m-%d %H:%M:%S").to_string();
+
+  graph_clones(&timestamp, data_path)?;
+  graph_page_views(&timestamp, data_path)?;
 
   Ok(())
 }
 
-fn graph_clones(data_path: &Path) -> Result<()> {
+fn graph_clones(timestamp: &str, data_path: &Path) -> Result<()> {
   let title = "Repository Clones";
 
   let all = create_time_series_graph(title, None, "clones", data_path)?;
@@ -234,6 +236,7 @@ fn graph_clones(data_path: &Path) -> Result<()> {
 
   let out_path = PathBuf::from("docs").join("github-clones.md");
   let rendered = tpl
+    .replace("{{ date }}", timestamp)
     .replace("{{ all }}", &all)
     .replace("{{ data }}", &data)
     .replace("{{ compute }}", &compute)
@@ -244,7 +247,7 @@ fn graph_clones(data_path: &Path) -> Result<()> {
   fs::write(out_path, rendered).map_err(Into::into)
 }
 
-fn graph_page_views(data_path: &Path) -> Result<()> {
+fn graph_page_views(timestamp: &str, data_path: &Path) -> Result<()> {
   let title = "Repository Page Views";
 
   let all = create_time_series_graph(title, None, "views", data_path)?;
@@ -259,6 +262,7 @@ fn graph_page_views(data_path: &Path) -> Result<()> {
 
   let out_path = PathBuf::from("docs").join("github-page-views.md");
   let rendered = tpl
+    .replace("{{ date }}", timestamp)
     .replace("{{ all }}", &all)
     .replace("{{ data }}", &data)
     .replace("{{ compute }}", &compute)
