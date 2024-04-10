@@ -118,5 +118,10 @@
     "count": 2,
     "timestamp": "2024-04-08T00:00:00Z",
     "uniques": 2
+  },
+  "2024-04-09": {
+    "count": 3,
+    "timestamp": "2024-04-09T00:00:00Z",
+    "uniques": 2
   }
 }
