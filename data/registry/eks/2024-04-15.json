@@ -10,12 +10,12 @@
     "created_at": "2018-12-17"
   },
   {
-    "downloads": 74052,
+    "downloads": 74053,
     "major_version": "3",
     "created_at": "2019-04-15"
   },
   {
-    "downloads": 187125,
+    "downloads": 187127,
     "major_version": "4",
     "created_at": "2019-05-07"
   },
@@ -25,17 +25,17 @@
     "created_at": "2019-06-19"
   },
   {
-    "downloads": 258492,
+    "downloads": 258496,
     "major_version": "6",
     "created_at": "2019-09-18"
   },
   {
-    "downloads": 401877,
+    "downloads": 402005,
     "major_version": "7",
     "created_at": "2019-10-30"
   },
   {
-    "downloads": 356039,
+    "downloads": 356042,
     "major_version": "8",
     "created_at": "2020-01-09"
   },
@@ -45,7 +45,7 @@
     "created_at": "2020-02-27"
   },
   {
-    "downloads": 133305,
+    "downloads": 133308,
     "major_version": "10",
     "created_at": "2020-03-12"
   },
@@ -55,47 +55,47 @@
     "created_at": "2020-03-30"
   },
   {
-    "downloads": 1233439,
+    "downloads": 1233506,
     "major_version": "12",
     "created_at": "2020-05-09"
   },
   {
-    "downloads": 1553523,
+    "downloads": 1553616,
     "major_version": "13",
     "created_at": "2020-10-06"
   },
   {
-    "downloads": 856744,
+    "downloads": 856785,
     "major_version": "14",
     "created_at": "2021-01-28"
   },
   {
-    "downloads": 1107679,
+    "downloads": 1108025,
     "major_version": "15",
     "created_at": "2021-04-16"
   },
   {
-    "downloads": 1815433,
+    "downloads": 1816575,
     "major_version": "16",
     "created_at": "2021-05-17"
   },
   {
-    "downloads": 10968921,
+    "downloads": 10974417,
     "major_version": "17",
     "created_at": "2021-05-28"
   },
   {
-    "downloads": 13169176,
+    "downloads": 13177691,
     "major_version": "18",
     "created_at": "2022-01-05"
   },
   {
-    "downloads": 14102909,
+    "downloads": 14131120,
     "major_version": "19",
     "created_at": "2022-12-05"
   },
   {
-    "downloads": 1169067,
+    "downloads": 1180405,
     "major_version": "20",
     "created_at": "2024-02-02"
   }
