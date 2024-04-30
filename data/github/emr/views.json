@@ -190,9 +190,9 @@
     "uniques": 7
   },
   "2024-04-16": {
-    "count": 292,
+    "count": 146,
     "timestamp": "2024-04-16T00:00:00Z",
-    "uniques": 25
+    "uniques": 6
   },
   "2024-04-17": {
     "count": 255,
@@ -240,9 +240,9 @@
     "uniques": 19
   },
   "2024-04-26": {
-    "count": 174,
+    "count": 200,
     "timestamp": "2024-04-26T00:00:00Z",
-    "uniques": 17
+    "uniques": 18
   },
   "2024-04-27": {
     "count": 16,
@@ -255,8 +255,13 @@
     "uniques": 4
   },
   "2024-04-29": {
-    "count": 190,
+    "count": 200,
     "timestamp": "2024-04-29T00:00:00Z",
-    "uniques": 26
+    "uniques": 27
+  },
+  "2024-04-30": {
+    "count": 124,
+    "timestamp": "2024-04-30T00:00:00Z",
+    "uniques": 15
   }
 }
