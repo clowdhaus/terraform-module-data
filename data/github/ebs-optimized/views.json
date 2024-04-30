@@ -158,5 +158,10 @@
     "count": 3,
     "timestamp": "2024-04-27T00:00:00Z",
     "uniques": 2
+  },
+  "2024-04-29": {
+    "count": 4,
+    "timestamp": "2024-04-29T00:00:00Z",
+    "uniques": 2
   }
 }
