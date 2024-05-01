@@ -195,9 +195,9 @@
     "uniques": 28
   },
   "2024-04-17": {
-    "count": 548,
+    "count": 496,
     "timestamp": "2024-04-17T00:00:00Z",
-    "uniques": 72
+    "uniques": 65
   },
   "2024-04-18": {
     "count": 888,
@@ -260,8 +260,8 @@
     "uniques": 58
   },
   "2024-04-30": {
-    "count": 376,
+    "count": 508,
     "timestamp": "2024-04-30T00:00:00Z",
-    "uniques": 45
+    "uniques": 63
   }
 }
