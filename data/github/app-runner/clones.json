@@ -210,9 +210,9 @@
     "uniques": 109
   },
   "2024-04-20": {
-    "count": 17,
+    "count": 4,
     "timestamp": "2024-04-20T00:00:00Z",
-    "uniques": 16
+    "uniques": 4
   },
   "2024-04-21": {
     "count": 11,
@@ -240,9 +240,9 @@
     "uniques": 158
   },
   "2024-04-26": {
-    "count": 70,
+    "count": 71,
     "timestamp": "2024-04-26T00:00:00Z",
-    "uniques": 64
+    "uniques": 65
   },
   "2024-04-27": {
     "count": 5,
@@ -275,8 +275,8 @@
     "uniques": 176
   },
   "2024-05-03": {
-    "count": 86,
+    "count": 291,
     "timestamp": "2024-05-03T00:00:00Z",
-    "uniques": 74
+    "uniques": 265
   }
 }
