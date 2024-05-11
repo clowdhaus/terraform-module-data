@@ -1,12 +1,17 @@
 [
   {
-    "downloads": 20224537,
+    "downloads": 20228237,
     "major_version": "1",
     "created_at": "2022-06-26"
   },
   {
-    "downloads": 6221909,
+    "downloads": 6233178,
     "major_version": "2",
     "created_at": "2023-09-05"
+  },
+  {
+    "downloads": 0,
+    "major_version": "3",
+    "created_at": "2024-05-11"
   }
 ]
