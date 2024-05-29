@@ -335,9 +335,9 @@
     "uniques": 14
   },
   "2024-05-15": {
-    "count": 423,
+    "count": 306,
     "timestamp": "2024-05-15T00:00:00Z",
-    "uniques": 39
+    "uniques": 36
   },
   "2024-05-16": {
     "count": 558,
@@ -400,8 +400,8 @@
     "uniques": 36
   },
   "2024-05-28": {
-    "count": 235,
+    "count": 310,
     "timestamp": "2024-05-28T00:00:00Z",
-    "uniques": 28
+    "uniques": 45
   }
 }
