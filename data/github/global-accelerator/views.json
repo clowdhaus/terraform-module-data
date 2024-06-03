@@ -373,5 +373,10 @@
     "count": 1,
     "timestamp": "2024-05-31T00:00:00Z",
     "uniques": 1
+  },
+  "2024-06-02": {
+    "count": 2,
+    "timestamp": "2024-06-02T00:00:00Z",
+    "uniques": 2
   }
 }
