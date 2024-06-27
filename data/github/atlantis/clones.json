@@ -480,9 +480,9 @@
     "uniques": 80
   },
   "2024-06-13": {
-    "count": 644,
+    "count": 595,
     "timestamp": "2024-06-13T00:00:00Z",
-    "uniques": 228
+    "uniques": 216
   },
   "2024-06-14": {
     "count": 439,
@@ -545,8 +545,8 @@
     "uniques": 46
   },
   "2024-06-26": {
-    "count": 76,
+    "count": 118,
     "timestamp": "2024-06-26T00:00:00Z",
-    "uniques": 23
+    "uniques": 36
   }
 }
