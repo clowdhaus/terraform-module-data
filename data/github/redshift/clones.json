@@ -610,9 +610,9 @@
     "uniques": 25
   },
   "2024-07-09": {
-    "count": 266,
+    "count": 93,
     "timestamp": "2024-07-09T00:00:00Z",
-    "uniques": 70
+    "uniques": 30
   },
   "2024-07-10": {
     "count": 242,
@@ -680,8 +680,8 @@
     "uniques": 83
   },
   "2024-07-23": {
-    "count": 8,
+    "count": 143,
     "timestamp": "2024-07-23T00:00:00Z",
-    "uniques": 4
+    "uniques": 45
   }
 }
