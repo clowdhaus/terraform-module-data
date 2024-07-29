@@ -463,5 +463,10 @@
     "count": 3,
     "timestamp": "2024-07-26T00:00:00Z",
     "uniques": 2
+  },
+  "2024-07-29": {
+    "count": 6,
+    "timestamp": "2024-07-29T00:00:00Z",
+    "uniques": 4
   }
 }
