@@ -735,9 +735,9 @@
     "uniques": 47
   },
   "2024-08-03": {
-    "count": 362,
+    "count": 241,
     "timestamp": "2024-08-03T00:00:00Z",
-    "uniques": 44
+    "uniques": 31
   },
   "2024-08-04": {
     "count": 199,
@@ -800,8 +800,8 @@
     "uniques": 159
   },
   "2024-08-16": {
-    "count": 536,
+    "count": 893,
     "timestamp": "2024-08-16T00:00:00Z",
-    "uniques": 104
+    "uniques": 164
   }
 }
