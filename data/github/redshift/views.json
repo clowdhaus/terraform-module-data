@@ -800,8 +800,13 @@
     "uniques": 12
   },
   "2024-08-20": {
-    "count": 100,
+    "count": 135,
     "timestamp": "2024-08-20T00:00:00Z",
-    "uniques": 15
+    "uniques": 21
+  },
+  "2024-08-21": {
+    "count": 7,
+    "timestamp": "2024-08-21T00:00:00Z",
+    "uniques": 1
   }
 }
