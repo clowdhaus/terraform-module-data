@@ -1,101 +1,101 @@
 [
   {
-    "downloads": 69295,
+    "downloads": 69304,
     "major_version": "1",
     "created_at": "2018-06-11"
   },
   {
-    "downloads": 139746,
+    "downloads": 139753,
     "major_version": "2",
     "created_at": "2018-12-17"
   },
   {
-    "downloads": 74471,
+    "downloads": 74475,
     "major_version": "3",
     "created_at": "2019-04-15"
   },
   {
-    "downloads": 188014,
+    "downloads": 188018,
     "major_version": "4",
     "created_at": "2019-05-07"
   },
   {
-    "downloads": 333991,
+    "downloads": 334025,
     "major_version": "5",
     "created_at": "2019-06-19"
   },
   {
-    "downloads": 259679,
+    "downloads": 259684,
     "major_version": "6",
     "created_at": "2019-09-18"
   },
   {
-    "downloads": 405253,
+    "downloads": 405269,
     "major_version": "7",
     "created_at": "2019-10-30"
   },
   {
-    "downloads": 357404,
+    "downloads": 357413,
     "major_version": "8",
     "created_at": "2020-01-09"
   },
   {
-    "downloads": 44860,
+    "downloads": 44861,
     "major_version": "9",
     "created_at": "2020-02-27"
   },
   {
-    "downloads": 133780,
+    "downloads": 133785,
     "major_version": "10",
     "created_at": "2020-03-12"
   },
   {
-    "downloads": 262543,
+    "downloads": 262549,
     "major_version": "11",
     "created_at": "2020-03-30"
   },
   {
-    "downloads": 1243596,
+    "downloads": 1243670,
     "major_version": "12",
     "created_at": "2020-05-09"
   },
   {
-    "downloads": 1576607,
+    "downloads": 1576838,
     "major_version": "13",
     "created_at": "2020-10-06"
   },
   {
-    "downloads": 866771,
+    "downloads": 866838,
     "major_version": "14",
     "created_at": "2021-01-28"
   },
   {
-    "downloads": 1155237,
+    "downloads": 1155632,
     "major_version": "15",
     "created_at": "2021-04-16"
   },
   {
-    "downloads": 2162432,
+    "downloads": 2172168,
     "major_version": "16",
     "created_at": "2021-05-17"
   },
   {
-    "downloads": 12618947,
+    "downloads": 12638139,
     "major_version": "17",
     "created_at": "2021-05-28"
   },
   {
-    "downloads": 15316679,
+    "downloads": 15338860,
     "major_version": "18",
     "created_at": "2022-01-05"
   },
   {
-    "downloads": 20382068,
+    "downloads": 20430912,
     "major_version": "19",
     "created_at": "2022-12-05"
   },
   {
-    "downloads": 6110697,
+    "downloads": 6187464,
     "major_version": "20",
     "created_at": "2024-02-02"
   }
