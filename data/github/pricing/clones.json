@@ -900,14 +900,14 @@
     "uniques": 1
   },
   "2024-09-05": {
-    "count": 63,
+    "count": 5,
     "timestamp": "2024-09-05T00:00:00Z",
-    "uniques": 3
+    "uniques": 1
   },
   "2024-09-06": {
-    "count": 33,
+    "count": 34,
     "timestamp": "2024-09-06T00:00:00Z",
-    "uniques": 4
+    "uniques": 5
   },
   "2024-09-07": {
     "count": 4,
@@ -965,8 +965,13 @@
     "uniques": 6
   },
   "2024-09-18": {
-    "count": 49,
+    "count": 50,
     "timestamp": "2024-09-18T00:00:00Z",
-    "uniques": 5
+    "uniques": 6
+  },
+  "2024-09-19": {
+    "count": 37,
+    "timestamp": "2024-09-19T00:00:00Z",
+    "uniques": 4
   }
 }
