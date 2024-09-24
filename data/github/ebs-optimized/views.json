@@ -663,5 +663,10 @@
     "count": 4,
     "timestamp": "2024-09-20T00:00:00Z",
     "uniques": 2
+  },
+  "2024-09-23": {
+    "count": 8,
+    "timestamp": "2024-09-23T00:00:00Z",
+    "uniques": 1
   }
 }
