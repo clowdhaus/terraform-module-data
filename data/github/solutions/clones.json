@@ -963,5 +963,10 @@
     "count": 1,
     "timestamp": "2024-11-24T00:00:00Z",
     "uniques": 1
+  },
+  "2024-11-26": {
+    "count": 2,
+    "timestamp": "2024-11-26T00:00:00Z",
+    "uniques": 1
   }
 }
