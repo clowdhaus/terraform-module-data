@@ -1250,9 +1250,9 @@
     "uniques": 32
   },
   "2024-11-14": {
-    "count": 292,
+    "count": 83,
     "timestamp": "2024-11-14T00:00:00Z",
-    "uniques": 65
+    "uniques": 24
   },
   "2024-11-15": {
     "count": 278,
@@ -1320,8 +1320,8 @@
     "uniques": 97
   },
   "2024-11-28": {
-    "count": 4,
+    "count": 110,
     "timestamp": "2024-11-28T00:00:00Z",
-    "uniques": 2
+    "uniques": 41
   }
 }
