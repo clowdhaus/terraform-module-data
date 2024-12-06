@@ -324,5 +324,5 @@ fn create_time_series_graph(title: &str, category: Option<&str>, data_type: &str
 
   info!("Plotting {} time series", title);
 
-  crate::graph::plot_time_series(&html_title, trace_data, titles)
+  crate::graph::plot_time_series(&html_title, trace_data, titles, plotly::common::Mode::Lines)
 }
