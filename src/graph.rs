@@ -3,7 +3,7 @@ use std::path::Path;
 use anyhow::{Ok, Result};
 use chrono::NaiveDate;
 use plotly::{
-  common::{Mode, Title},
+  common::Mode,
   layout::{Axis, Legend, RangeSelector, RangeSlider, SelectorButton, SelectorStep, StepMode},
   Layout, Plot, Scatter,
 };
@@ -37,12 +37,12 @@ pub(crate) fn plot_time_series(name: &str, data: Vec<TraceData>, titles: Titles)
   }
 
   let layout = Layout::new()
-    .title(Title::new(&titles.title))
-    .legend(Legend::new().title(Title::new("Module")))
+    .title(&titles.title)
+    .legend(Legend::new().title("Module"))
     .height(650)
     .x_axis(
       Axis::new()
-        .title(Title::new(&titles.x_title))
+        .title(&titles.x_title)
         .range_slider(RangeSlider::new().visible(true))
         .range_selector(RangeSelector::new().buttons(vec![
                         SelectorButton::new()
@@ -68,7 +68,7 @@ pub(crate) fn plot_time_series(name: &str, data: Vec<TraceData>, titles: Titles)
                         SelectorButton::new().step(SelectorStep::All),
                     ])),
     )
-    .y_axis(Axis::new().title(Title::new(&titles.y_title)));
+    .y_axis(Axis::new().title(&titles.y_title));
   plot.set_layout(layout);
 
   // plot.show();

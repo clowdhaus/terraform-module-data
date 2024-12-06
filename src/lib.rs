@@ -1,5 +1,3 @@
-#![feature(lazy_cell)]
-
 pub mod cli;
 pub(crate) mod github;
 pub mod graph;
