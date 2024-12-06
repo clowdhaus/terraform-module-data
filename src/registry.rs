@@ -1,5 +1,6 @@
 use std::{
   collections::BTreeMap,
+  fs,
   path::{Path, PathBuf},
 };
 
@@ -7,6 +8,7 @@ use anyhow::Result;
 use chrono::prelude::*;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
+use tracing::info;
 use url::Url;
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -135,6 +137,108 @@ pub async fn collect(path: &Path, module: &str) -> Result<()> {
   let registry = get(module).await?;
   let registry_path = path.join("registry").join(module.to_lowercase());
   registry.write(registry_path, registry.summarize()?)?;
+
+  Ok(())
+}
+
+type Module = String;
+type ModuleData = BTreeMap<Module, Vec<crate::graph::TraceData>>;
+type ModuleMajorVersion = String;
+type DownloadDates = Vec<NaiveDate>;
+type DownloadCounts = Vec<u64>;
+
+fn collect_trace_data(data_path: &Path) -> Result<ModuleData> {
+  let mut data = ModuleData::new();
+
+  for entry in fs::read_dir(data_path.join("registry"))? {
+    let mod_path = entry?.path();
+    let module = mod_path.file_stem().unwrap().to_str().unwrap().to_owned();
+
+    let traces = get_module_data_traces(&mod_path)?;
+    data.insert(module, traces);
+  }
+
+  Ok(data)
+}
+
+fn get_module_data_traces(mod_path: &Path) -> Result<Vec<crate::graph::TraceData>> {
+  let mut aggregate: BTreeMap<ModuleMajorVersion, (DownloadDates, DownloadCounts)> = BTreeMap::new();
+
+  for fentry in fs::read_dir(mod_path)? {
+    let file_path = fentry?.path();
+    let file_name = file_path.file_stem().unwrap().to_str().unwrap();
+    let file_data = fs::read_to_string(&file_path)?;
+    let summary = serde_json::from_str::<Vec<Summary>>(&file_data)?;
+
+    let timestamp = NaiveDate::parse_from_str(&file_name.replace(".json", ""), "%Y-%m-%d")?;
+
+    for sum in summary.iter() {
+      let version = &sum.major_version;
+      let downloads = sum.downloads;
+
+      aggregate
+        .entry(version.to_string())
+        .and_modify(|(dates, counts)| {
+          dates.push(timestamp);
+          counts.push(downloads);
+        })
+        .or_insert((vec![timestamp], vec![downloads]));
+    }
+  }
+
+  let mut traces = Vec::new();
+  for (version, (dates, downloads)) in aggregate.into_iter() {
+    if mod_path.ends_with("eks") && version.parse::<i32>()? < 16 {
+      tracing::error!("Skipping {mod_path:#?} version {version}");
+      // Not interested in EKS versions older than 16
+      continue;
+    }
+    traces.push(crate::graph::TraceData {
+      name: format!("v{version}.0"),
+      x_data: dates,
+      y_data: downloads.iter().map(|d| d.to_string()).collect(),
+    });
+  }
+
+  Ok(traces)
+}
+
+fn graph_downloads(timestamp: &str, data_path: &Path) -> Result<()> {
+  let title = "Terraform Registry Downloads";
+  let tdata = crate::registry::collect_trace_data(data_path)?;
+  let mut body = String::new();
+
+  for (module, traces) in tdata.into_iter() {
+    body.push_str(&format!("## {module}\n\n"));
+
+    let html_title = format!("{module} - {title}");
+    let titles = crate::graph::Titles {
+      title: html_title.clone(),
+      x_title: "Date".to_string(),
+      y_title: "Total Downloads".to_string(),
+    };
+
+    info!("Plotting {} time series", html_title);
+
+    let plot = crate::graph::plot_time_series(&html_title, traces, titles, plotly::common::Mode::Markers)?;
+
+    body.push_str(plot.as_str());
+    body.push_str("\n\n");
+  }
+
+  let tpl_path = PathBuf::from("src").join("templates").join("registry-downloads.tpl");
+  let tpl = fs::read_to_string(tpl_path)?;
+  let out_path = PathBuf::from("docs").join("registry-downloads.md");
+
+  let rendered = tpl.replace("{{ body }}", &body).replace("{{ date }}", timestamp);
+  fs::write(out_path, rendered).map_err(Into::into)
+}
+
+/// Graph the data collected and insert into mdbook docs
+pub(crate) fn graph(data_path: &Path) -> Result<()> {
+  let timestamp = chrono::Local::now().to_utc().format("%Y-%m-%d %H:%M:%S").to_string();
+
+  graph_downloads(&timestamp, data_path)?;
 
   Ok(())
 }

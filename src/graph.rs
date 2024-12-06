@@ -17,22 +17,21 @@ pub struct Titles {
 
 pub fn graph(data_path: &Path, _assets_path: &Path) -> Result<()> {
   crate::github::graph(data_path)?;
-
-  Ok(())
+  crate::registry::graph(data_path)
 }
 
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct TraceData {
   pub name: String,
   pub x_data: Vec<NaiveDate>,
   pub y_data: Vec<String>,
 }
 
-pub(crate) fn plot_time_series(name: &str, data: Vec<TraceData>, titles: Titles) -> Result<String> {
+pub(crate) fn plot_time_series(name: &str, data: Vec<TraceData>, titles: Titles, mode: Mode) -> Result<String> {
   let mut plot = Plot::new();
 
   for d in data.into_iter() {
-    let trace = Scatter::new(d.x_data, d.y_data).mode(Mode::Lines).name(d.name);
+    let trace = Scatter::new(d.x_data, d.y_data).mode(mode.clone()).name(d.name);
     plot.add_trace(trace);
   }
 
