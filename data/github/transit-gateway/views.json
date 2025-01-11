@@ -1470,9 +1470,9 @@
     "uniques": 10
   },
   "2024-12-28": {
-    "count": 6,
+    "count": 3,
     "timestamp": "2024-12-28T00:00:00Z",
-    "uniques": 5
+    "uniques": 3
   },
   "2024-12-29": {
     "count": 43,
@@ -1535,8 +1535,8 @@
     "uniques": 30
   },
   "2025-01-10": {
-    "count": 93,
+    "count": 202,
     "timestamp": "2025-01-10T00:00:00Z",
-    "uniques": 25
+    "uniques": 45
   }
 }
