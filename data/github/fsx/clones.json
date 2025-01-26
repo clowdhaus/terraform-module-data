@@ -1495,9 +1495,9 @@
     "uniques": 1
   },
   "2025-01-12": {
-    "count": 6,
+    "count": 5,
     "timestamp": "2025-01-12T00:00:00Z",
-    "uniques": 6
+    "uniques": 5
   },
   "2025-01-13": {
     "count": 24,
@@ -1560,8 +1560,8 @@
     "uniques": 22
   },
   "2025-01-25": {
-    "count": 10,
+    "count": 11,
     "timestamp": "2025-01-25T00:00:00Z",
-    "uniques": 10
+    "uniques": 11
   }
 }
