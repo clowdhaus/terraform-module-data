@@ -1,0 +1,102 @@
+[
+  {
+    "downloads": 70817,
+    "major_version": "1",
+    "created_at": "2018-06-11"
+  },
+  {
+    "downloads": 141033,
+    "major_version": "2",
+    "created_at": "2018-12-17"
+  },
+  {
+    "downloads": 74969,
+    "major_version": "3",
+    "created_at": "2019-04-15"
+  },
+  {
+    "downloads": 188964,
+    "major_version": "4",
+    "created_at": "2019-05-07"
+  },
+  {
+    "downloads": 335454,
+    "major_version": "5",
+    "created_at": "2019-06-19"
+  },
+  {
+    "downloads": 261106,
+    "major_version": "6",
+    "created_at": "2019-09-18"
+  },
+  {
+    "downloads": 407426,
+    "major_version": "7",
+    "created_at": "2019-10-30"
+  },
+  {
+    "downloads": 358066,
+    "major_version": "8",
+    "created_at": "2020-01-09"
+  },
+  {
+    "downloads": 45341,
+    "major_version": "9",
+    "created_at": "2020-02-27"
+  },
+  {
+    "downloads": 134343,
+    "major_version": "10",
+    "created_at": "2020-03-12"
+  },
+  {
+    "downloads": 263357,
+    "major_version": "11",
+    "created_at": "2020-03-30"
+  },
+  {
+    "downloads": 1251010,
+    "major_version": "12",
+    "created_at": "2020-05-09"
+  },
+  {
+    "downloads": 1596200,
+    "major_version": "13",
+    "created_at": "2020-10-06"
+  },
+  {
+    "downloads": 873662,
+    "major_version": "14",
+    "created_at": "2021-01-28"
+  },
+  {
+    "downloads": 1183558,
+    "major_version": "15",
+    "created_at": "2021-04-16"
+  },
+  {
+    "downloads": 3511753,
+    "major_version": "16",
+    "created_at": "2021-05-17"
+  },
+  {
+    "downloads": 14053697,
+    "major_version": "17",
+    "created_at": "2021-05-28"
+  },
+  {
+    "downloads": 17164243,
+    "major_version": "18",
+    "created_at": "2022-01-05"
+  },
+  {
+    "downloads": 24723338,
+    "major_version": "19",
+    "created_at": "2022-12-05"
+  },
+  {
+    "downloads": 13791412,
+    "major_version": "20",
+    "created_at": "2024-02-02"
+  }
+]
