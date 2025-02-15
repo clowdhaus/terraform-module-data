@@ -1645,9 +1645,9 @@
     "uniques": 19
   },
   "2025-02-01": {
-    "count": 66,
+    "count": 40,
     "timestamp": "2025-02-01T00:00:00Z",
-    "uniques": 13
+    "uniques": 8
   },
   "2025-02-02": {
     "count": 65,
@@ -1695,9 +1695,9 @@
     "uniques": 60
   },
   "2025-02-11": {
-    "count": 109,
+    "count": 140,
     "timestamp": "2025-02-11T00:00:00Z",
-    "uniques": 34
+    "uniques": 43
   },
   "2025-02-12": {
     "count": 412,
@@ -1705,13 +1705,13 @@
     "uniques": 67
   },
   "2025-02-13": {
-    "count": 124,
+    "count": 343,
     "timestamp": "2025-02-13T00:00:00Z",
-    "uniques": 19
+    "uniques": 54
   },
   "2025-02-14": {
-    "count": 136,
+    "count": 203,
     "timestamp": "2025-02-14T00:00:00Z",
-    "uniques": 27
+    "uniques": 41
   }
 }
