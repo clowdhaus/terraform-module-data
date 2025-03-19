@@ -1,22 +1,27 @@
 [
   {
-    "downloads": 604284,
+    "downloads": 604393,
     "major_version": "1",
     "created_at": "2020-06-17"
   },
   {
-    "downloads": 22411109,
+    "downloads": 22431168,
     "major_version": "2",
     "created_at": "2021-04-26"
   },
   {
-    "downloads": 746019,
+    "downloads": 746908,
     "major_version": "3",
     "created_at": "2024-06-08"
   },
   {
-    "downloads": 1285950,
+    "downloads": 1291785,
     "major_version": "4",
     "created_at": "2024-08-17"
+  },
+  {
+    "downloads": 9,
+    "major_version": "5",
+    "created_at": "2025-03-19"
   }
 ]
