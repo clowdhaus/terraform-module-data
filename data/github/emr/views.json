@@ -1930,8 +1930,13 @@
     "uniques": 15
   },
   "2025-04-06": {
-    "count": 6,
+    "count": 11,
     "timestamp": "2025-04-06T00:00:00Z",
-    "uniques": 2
+    "uniques": 4
+  },
+  "2025-04-07": {
+    "count": 5,
+    "timestamp": "2025-04-07T00:00:00Z",
+    "uniques": 1
   }
 }
