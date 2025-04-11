@@ -1915,9 +1915,9 @@
     "uniques": 12
   },
   "2025-03-28": {
-    "count": 127,
+    "count": 115,
     "timestamp": "2025-03-28T00:00:00Z",
-    "uniques": 29
+    "uniques": 27
   },
   "2025-03-29": {
     "count": 44,
@@ -1980,8 +1980,8 @@
     "uniques": 28
   },
   "2025-04-10": {
-    "count": 123,
+    "count": 207,
     "timestamp": "2025-04-10T00:00:00Z",
-    "uniques": 27
+    "uniques": 42
   }
 }
