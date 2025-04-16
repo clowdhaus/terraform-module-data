@@ -1845,8 +1845,13 @@
     "uniques": 14
   },
   "2025-04-15": {
-    "count": 41,
+    "count": 128,
     "timestamp": "2025-04-15T00:00:00Z",
-    "uniques": 9
+    "uniques": 23
+  },
+  "2025-04-16": {
+    "count": 14,
+    "timestamp": "2025-04-16T00:00:00Z",
+    "uniques": 1
   }
 }
