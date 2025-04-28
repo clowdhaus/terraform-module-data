@@ -2005,9 +2005,9 @@
     "uniques": 8
   },
   "2025-04-14": {
-    "count": 235,
+    "count": 42,
     "timestamp": "2025-04-14T00:00:00Z",
-    "uniques": 53
+    "uniques": 14
   },
   "2025-04-15": {
     "count": 247,
@@ -2075,8 +2075,8 @@
     "uniques": 15
   },
   "2025-04-28": {
-    "count": 13,
+    "count": 115,
     "timestamp": "2025-04-28T00:00:00Z",
-    "uniques": 2
+    "uniques": 29
   }
 }
