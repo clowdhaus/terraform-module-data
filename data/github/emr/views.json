@@ -2080,8 +2080,13 @@
     "uniques": 16
   },
   "2025-05-06": {
-    "count": 42,
+    "count": 139,
     "timestamp": "2025-05-06T00:00:00Z",
-    "uniques": 13
+    "uniques": 24
+  },
+  "2025-05-07": {
+    "count": 8,
+    "timestamp": "2025-05-07T00:00:00Z",
+    "uniques": 2
   }
 }
