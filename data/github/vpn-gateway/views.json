@@ -2220,8 +2220,13 @@
     "uniques": 10
   },
   "2025-05-30": {
-    "count": 15,
+    "count": 38,
     "timestamp": "2025-05-30T00:00:00Z",
-    "uniques": 8
+    "uniques": 11
+  },
+  "2025-05-31": {
+    "count": 3,
+    "timestamp": "2025-05-31T00:00:00Z",
+    "uniques": 2
   }
 }
