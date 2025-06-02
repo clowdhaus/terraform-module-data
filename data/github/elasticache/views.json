@@ -2140,9 +2140,9 @@
     "uniques": 5
   },
   "2025-05-19": {
-    "count": 386,
+    "count": 81,
     "timestamp": "2025-05-19T00:00:00Z",
-    "uniques": 88
+    "uniques": 26
   },
   "2025-05-20": {
     "count": 363,
@@ -2210,8 +2210,8 @@
     "uniques": 14
   },
   "2025-06-02": {
-    "count": 5,
+    "count": 275,
     "timestamp": "2025-06-02T00:00:00Z",
-    "uniques": 2
+    "uniques": 51
   }
 }
