@@ -2270,8 +2270,13 @@
     "uniques": 37
   },
   "2025-06-06": {
-    "count": 65,
+    "count": 155,
     "timestamp": "2025-06-06T00:00:00Z",
-    "uniques": 17
+    "uniques": 29
+  },
+  "2025-06-07": {
+    "count": 7,
+    "timestamp": "2025-06-07T00:00:00Z",
+    "uniques": 2
   }
 }
