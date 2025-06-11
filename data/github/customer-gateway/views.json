@@ -1710,8 +1710,13 @@
     "uniques": 3
   },
   "2025-06-10": {
-    "count": 3,
+    "count": 20,
     "timestamp": "2025-06-10T00:00:00Z",
-    "uniques": 3
+    "uniques": 5
+  },
+  "2025-06-11": {
+    "count": 1,
+    "timestamp": "2025-06-11T00:00:00Z",
+    "uniques": 1
   }
 }
