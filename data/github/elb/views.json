@@ -2345,8 +2345,13 @@
     "uniques": 13
   },
   "2025-06-27": {
-    "count": 4,
+    "count": 10,
     "timestamp": "2025-06-27T00:00:00Z",
-    "uniques": 2
+    "uniques": 3
+  },
+  "2025-06-28": {
+    "count": 23,
+    "timestamp": "2025-06-28T00:00:00Z",
+    "uniques": 1
   }
 }
