@@ -1930,9 +1930,9 @@
     "uniques": 2
   },
   "2025-06-22": {
-    "count": 9,
+    "count": 6,
     "timestamp": "2025-06-22T00:00:00Z",
-    "uniques": 7
+    "uniques": 6
   },
   "2025-06-23": {
     "count": 37,
@@ -1998,5 +1998,10 @@
     "count": 6,
     "timestamp": "2025-07-05T00:00:00Z",
     "uniques": 4
+  },
+  "2025-07-06": {
+    "count": 2,
+    "timestamp": "2025-07-06T00:00:00Z",
+    "uniques": 2
   }
 }
