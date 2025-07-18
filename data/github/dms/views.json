@@ -2470,8 +2470,13 @@
     "uniques": 17
   },
   "2025-07-17": {
-    "count": 35,
+    "count": 69,
     "timestamp": "2025-07-17T00:00:00Z",
-    "uniques": 14
+    "uniques": 22
+  },
+  "2025-07-18": {
+    "count": 2,
+    "timestamp": "2025-07-18T00:00:00Z",
+    "uniques": 1
   }
 }
