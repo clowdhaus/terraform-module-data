@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   schedule:
     - cron: '0 3 * * *' # 11pm EST
-    - cron: '0 15 * * *' # 11am EST
+    # - cron: '0 15 * * *' # 11am EST
 
 jobs:
   update:
