@@ -1730,9 +1730,9 @@
     "uniques": 3
   },
   "2025-07-29": {
-    "count": 4,
+    "count": 3,
     "timestamp": "2025-07-29T00:00:00Z",
-    "uniques": 4
+    "uniques": 3
   },
   "2025-07-30": {
     "count": 1,
@@ -1773,5 +1773,10 @@
     "count": 1,
     "timestamp": "2025-08-09T00:00:00Z",
     "uniques": 1
+  },
+  "2025-08-11": {
+    "count": 7,
+    "timestamp": "2025-08-11T00:00:00Z",
+    "uniques": 2
   }
 }
