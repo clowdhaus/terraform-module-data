@@ -2570,13 +2570,13 @@
     "uniques": 24
   },
   "2025-08-11": {
-    "count": 81,
+    "count": 90,
     "timestamp": "2025-08-11T00:00:00Z",
-    "uniques": 54
+    "uniques": 57
   },
   "2025-08-12": {
-    "count": 7,
+    "count": 159,
     "timestamp": "2025-08-12T00:00:00Z",
-    "uniques": 6
+    "uniques": 98
   }
 }
