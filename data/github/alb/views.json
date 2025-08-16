@@ -2555,9 +2555,9 @@
     "uniques": 132
   },
   "2025-08-02": {
-    "count": 44,
+    "count": 28,
     "timestamp": "2025-08-02T00:00:00Z",
-    "uniques": 21
+    "uniques": 16
   },
   "2025-08-03": {
     "count": 80,
@@ -2620,8 +2620,13 @@
     "uniques": 143
   },
   "2025-08-15": {
-    "count": 7,
+    "count": 479,
     "timestamp": "2025-08-15T00:00:00Z",
-    "uniques": 3
+    "uniques": 104
+  },
+  "2025-08-16": {
+    "count": 6,
+    "timestamp": "2025-08-16T00:00:00Z",
+    "uniques": 2
   }
 }
