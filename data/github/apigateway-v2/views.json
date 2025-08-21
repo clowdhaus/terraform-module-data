@@ -2580,9 +2580,9 @@
     "uniques": 48
   },
   "2025-08-07": {
-    "count": 292,
+    "count": 274,
     "timestamp": "2025-08-07T00:00:00Z",
-    "uniques": 55
+    "uniques": 49
   },
   "2025-08-08": {
     "count": 110,
@@ -2640,13 +2640,18 @@
     "uniques": 62
   },
   "2025-08-19": {
-    "count": 76,
+    "count": 74,
     "timestamp": "2025-08-19T00:00:00Z",
     "uniques": 26
   },
   "2025-08-20": {
-    "count": 8,
+    "count": 54,
     "timestamp": "2025-08-20T00:00:00Z",
-    "uniques": 1
+    "uniques": 17
+  },
+  "2025-08-21": {
+    "count": 5,
+    "timestamp": "2025-08-21T00:00:00Z",
+    "uniques": 2
   }
 }
