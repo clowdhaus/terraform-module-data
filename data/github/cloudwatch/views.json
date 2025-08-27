@@ -2610,9 +2610,9 @@
     "uniques": 35
   },
   "2025-08-13": {
-    "count": 125,
+    "count": 97,
     "timestamp": "2025-08-13T00:00:00Z",
-    "uniques": 31
+    "uniques": 23
   },
   "2025-08-14": {
     "count": 173,
@@ -2640,9 +2640,9 @@
     "uniques": 28
   },
   "2025-08-19": {
-    "count": 84,
+    "count": 82,
     "timestamp": "2025-08-19T00:00:00Z",
-    "uniques": 26
+    "uniques": 25
   },
   "2025-08-20": {
     "count": 26,
@@ -2675,8 +2675,13 @@
     "uniques": 37
   },
   "2025-08-26": {
-    "count": 8,
+    "count": 210,
     "timestamp": "2025-08-26T00:00:00Z",
-    "uniques": 2
+    "uniques": 40
+  },
+  "2025-08-27": {
+    "count": 9,
+    "timestamp": "2025-08-27T00:00:00Z",
+    "uniques": 5
   }
 }
