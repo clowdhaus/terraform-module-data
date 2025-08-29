@@ -2680,8 +2680,13 @@
     "uniques": 28
   },
   "2025-08-28": {
-    "count": 8,
+    "count": 61,
     "timestamp": "2025-08-28T00:00:00Z",
-    "uniques": 2
+    "uniques": 22
+  },
+  "2025-08-29": {
+    "count": 3,
+    "timestamp": "2025-08-29T00:00:00Z",
+    "uniques": 1
   }
 }
