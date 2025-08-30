@@ -2520,14 +2520,14 @@
     "uniques": 10
   },
   "2025-08-19": {
-    "count": 5,
+    "count": 4,
     "timestamp": "2025-08-19T00:00:00Z",
     "uniques": 2
   },
   "2025-08-20": {
-    "count": 9,
+    "count": 40,
     "timestamp": "2025-08-20T00:00:00Z",
-    "uniques": 4
+    "uniques": 10
   },
   "2025-08-21": {
     "count": 32,
@@ -2568,5 +2568,10 @@
     "count": 41,
     "timestamp": "2025-08-28T00:00:00Z",
     "uniques": 11
+  },
+  "2025-08-29": {
+    "count": 20,
+    "timestamp": "2025-08-29T00:00:00Z",
+    "uniques": 5
   }
 }

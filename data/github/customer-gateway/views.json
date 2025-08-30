@@ -1985,7 +1985,7 @@
     "uniques": 2
   },
   "2025-08-20": {
-    "count": 2,
+    "count": 4,
     "timestamp": "2025-08-20T00:00:00Z",
     "uniques": 1
   },
@@ -2010,8 +2010,8 @@
     "uniques": 2
   },
   "2025-08-29": {
-    "count": 1,
+    "count": 2,
     "timestamp": "2025-08-29T00:00:00Z",
-    "uniques": 1
+    "uniques": 2
   }
 }
