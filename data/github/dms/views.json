@@ -2790,8 +2790,13 @@
     "uniques": 24
   },
   "2025-09-19": {
-    "count": 1,
+    "count": 81,
     "timestamp": "2025-09-19T00:00:00Z",
-    "uniques": 1
+    "uniques": 25
+  },
+  "2025-09-20": {
+    "count": 2,
+    "timestamp": "2025-09-20T00:00:00Z",
+    "uniques": 2
   }
 }
