@@ -2800,8 +2800,13 @@
     "uniques": 40
   },
   "2025-09-20": {
-    "count": 26,
+    "count": 40,
     "timestamp": "2025-09-20T00:00:00Z",
-    "uniques": 7
+    "uniques": 12
+  },
+  "2025-09-21": {
+    "count": 2,
+    "timestamp": "2025-09-21T00:00:00Z",
+    "uniques": 1
   }
 }
