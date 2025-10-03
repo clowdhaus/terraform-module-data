@@ -2860,8 +2860,13 @@
     "uniques": 53
   },
   "2025-10-02": {
-    "count": 6,
+    "count": 88,
     "timestamp": "2025-10-02T00:00:00Z",
-    "uniques": 4
+    "uniques": 34
+  },
+  "2025-10-03": {
+    "count": 2,
+    "timestamp": "2025-10-03T00:00:00Z",
+    "uniques": 1
   }
 }
