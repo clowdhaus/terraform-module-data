@@ -2870,8 +2870,13 @@
     "uniques": 126
   },
   "2025-10-04": {
-    "count": 2,
+    "count": 49,
     "timestamp": "2025-10-04T00:00:00Z",
-    "uniques": 1
+    "uniques": 25
+  },
+  "2025-10-05": {
+    "count": 10,
+    "timestamp": "2025-10-05T00:00:00Z",
+    "uniques": 4
   }
 }
