@@ -2885,8 +2885,13 @@
     "uniques": 16
   },
   "2025-10-18": {
-    "count": 2,
+    "count": 7,
     "timestamp": "2025-10-18T00:00:00Z",
-    "uniques": 2
+    "uniques": 5
+  },
+  "2025-10-19": {
+    "count": 5,
+    "timestamp": "2025-10-19T00:00:00Z",
+    "uniques": 1
   }
 }
