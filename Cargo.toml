@@ -28,7 +28,7 @@ serde_json = "1.0"
 tracing = { version = "0.1", default-features = false, features = ["log-always"] }
 tracing-log = "0.2"
 tracing-subscriber = { version = "0.3", default-features = false, features = ["fmt", "std", "ansi"] }
-tokio = { version = "1.47", default-features = false, features = ["macros", "rt-multi-thread"] }
+tokio = { version = "1.48", default-features = false, features = ["macros", "rt-multi-thread"] }
 url = "2.5"
 
 [lints.rust]
