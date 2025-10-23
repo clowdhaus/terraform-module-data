@@ -2940,8 +2940,13 @@
     "uniques": 18
   },
   "2025-10-22": {
-    "count": 4,
+    "count": 105,
     "timestamp": "2025-10-22T00:00:00Z",
-    "uniques": 3
+    "uniques": 30
+  },
+  "2025-10-23": {
+    "count": 2,
+    "timestamp": "2025-10-23T00:00:00Z",
+    "uniques": 2
   }
 }
