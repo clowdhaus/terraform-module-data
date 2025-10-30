@@ -2610,9 +2610,9 @@
     "uniques": 2
   },
   "2025-10-16": {
-    "count": 16,
+    "count": 14,
     "timestamp": "2025-10-16T00:00:00Z",
-    "uniques": 6
+    "uniques": 5
   },
   "2025-10-17": {
     "count": 5,
@@ -2670,8 +2670,8 @@
     "uniques": 7
   },
   "2025-10-29": {
-    "count": 20,
+    "count": 42,
     "timestamp": "2025-10-29T00:00:00Z",
-    "uniques": 2
+    "uniques": 10
   }
 }
