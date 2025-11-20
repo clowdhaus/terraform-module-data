@@ -3080,8 +3080,13 @@
     "uniques": 18
   },
   "2025-11-19": {
-    "count": 2,
+    "count": 14,
     "timestamp": "2025-11-19T00:00:00Z",
-    "uniques": 2
+    "uniques": 10
+  },
+  "2025-11-20": {
+    "count": 8,
+    "timestamp": "2025-11-20T00:00:00Z",
+    "uniques": 1
   }
 }
