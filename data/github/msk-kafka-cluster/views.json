@@ -3105,9 +3105,9 @@
     "uniques": 35
   },
   "2025-11-20": {
-    "count": 173,
+    "count": 155,
     "timestamp": "2025-11-20T00:00:00Z",
-    "uniques": 33
+    "uniques": 31
   },
   "2025-11-21": {
     "count": 70,
@@ -3170,8 +3170,13 @@
     "uniques": 23
   },
   "2025-12-03": {
-    "count": 2,
+    "count": 84,
     "timestamp": "2025-12-03T00:00:00Z",
-    "uniques": 1
+    "uniques": 29
+  },
+  "2025-12-04": {
+    "count": 4,
+    "timestamp": "2025-12-04T00:00:00Z",
+    "uniques": 3
   }
 }
