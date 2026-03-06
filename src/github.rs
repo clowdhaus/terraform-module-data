@@ -13,72 +13,65 @@ use url::Url;
 const GITHUB_TOKEN_ENV_VAR: &str = "TERRAFORM_MODULE_DATA";
 const NO_ACCESS: [&str; 1] = ["s3-object"];
 
-/// Page Views
-
+/// A single traffic entry (used for both page views and clones)
 #[derive(Debug, Serialize, Deserialize)]
-struct PageViewsResponse {
-  count: u64,
-  uniques: u64,
-  views: Vec<View>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-struct View {
+struct TrafficEntry {
   count: u64,
   timestamp: String,
   uniques: u64,
 }
 
-type PageViewSummary = BTreeMap<String, View>;
+type TrafficSummary = BTreeMap<String, TrafficEntry>;
 
-impl PageViewsResponse {
-  /// Load the currently saved data from file
-  fn get_current(&self, path: &Path) -> Result<PageViewSummary> {
-    match fs::read_to_string(path) {
-      Ok(data) => {
-        info!("Reading existing data from file: {}", path.display());
-        let summary: PageViewSummary = serde_json::from_str(&data)?;
-        Ok(summary)
-      }
-      Err(_) => {
-        info!("No existing data found for {}, creating new summary", path.display());
-        Ok(PageViewSummary::new())
-      }
+/// Load the currently saved traffic data from file
+fn get_current_traffic(path: &Path) -> Result<TrafficSummary> {
+  match fs::read_to_string(path) {
+    Ok(data) => {
+      info!("Reading existing data from file: {}", path.display());
+      let summary: TrafficSummary = serde_json::from_str(&data)?;
+      Ok(summary)
     }
-  }
-
-  fn summarize(self, path: &Path) -> Result<PageViewSummary> {
-    let mut summary = self.get_current(path)?;
-
-    for v in self.views.into_iter() {
-      let timestamp = chrono::DateTime::parse_from_rfc3339(&v.timestamp).context("Failed to parse timestamp")?;
-      summary.insert(timestamp.date_naive().to_string(), v);
+    Err(_) => {
+      info!("No existing data found for {}, creating new summary", path.display());
+      Ok(TrafficSummary::new())
     }
-
-    info!("{} summarized", path.display());
-
-    Ok(summary)
-  }
-
-  fn write(self, path: &Path) -> Result<()> {
-    let filepath = path.join("views.json");
-    let summary = self.summarize(&filepath)?;
-    std::fs::create_dir_all(path)?;
-
-    let json = serde_json::to_string_pretty(&summary)?;
-    std::fs::write(filepath, json)?;
-
-    Ok(())
   }
 }
 
-async fn get_page_views(module: &str) -> Result<PageViewsResponse> {
+/// Merge new traffic entries into the existing summary
+fn summarize_traffic(entries: Vec<TrafficEntry>, path: &Path) -> Result<TrafficSummary> {
+  let mut summary = get_current_traffic(path)?;
+
+  for v in entries {
+    let timestamp = chrono::DateTime::parse_from_rfc3339(&v.timestamp).context("Failed to parse timestamp")?;
+    summary.insert(timestamp.date_naive().to_string(), v);
+  }
+
+  info!("{} summarized", path.display());
+
+  Ok(summary)
+}
+
+/// Write traffic entries to a JSON file, merging with existing data
+fn write_traffic(entries: Vec<TrafficEntry>, dir: &Path, filename: &str) -> Result<()> {
+  let filepath = dir.join(filename);
+  let summary = summarize_traffic(entries, &filepath)?;
+  std::fs::create_dir_all(dir)?;
+
+  let json = serde_json::to_string_pretty(&summary)?;
+  std::fs::write(filepath, json)?;
+
+  Ok(())
+}
+
+/// Fetch traffic data (views or clones) from the GitHub API
+async fn get_traffic(module: &str, traffic_type: &str) -> Result<Vec<TrafficEntry>> {
   if NO_ACCESS.contains(&module) {
-    bail!("No access to page views for {}", module);
+    bail!("No access to {traffic_type} data for {module}");
   }
 
   let url = Url::parse(
-    format!("https://api.github.com/repos/terraform-aws-modules/terraform-aws-{module}/traffic/views").as_str(),
+    format!("https://api.github.com/repos/terraform-aws-modules/terraform-aws-{module}/traffic/{traffic_type}").as_str(),
   )?;
 
   let token = match env::var(GITHUB_TOKEN_ENV_VAR) {
@@ -97,116 +90,31 @@ async fn get_page_views(module: &str) -> Result<PageViewsResponse> {
     .await?;
 
   if resp.status().is_success() {
-    let response: PageViewsResponse = resp.json().await?;
-    debug!("GET /traffic/views response: {:#?}", response);
-    Ok(response)
+    let value: serde_json::Value = resp.json().await?;
+    let entries_key = if traffic_type == "views" { "views" } else { "clones" };
+    let entries: Vec<TrafficEntry> = serde_json::from_value(
+      value
+        .get(entries_key)
+        .ok_or_else(|| anyhow::anyhow!("Missing '{entries_key}' field in response"))?
+        .clone(),
+    )?;
+    debug!("GET /traffic/{traffic_type} response: {entries:#?}");
+    Ok(entries)
   } else {
-    error!("GET /traffic/views response: {:#?}", resp);
-    bail!("Failed to get page views")
-  }
-}
-
-/// Repository Clones
-
-#[derive(Debug, Serialize, Deserialize)]
-struct RepositoryCloneResponse {
-  count: u64,
-  uniques: u64,
-  clones: Vec<Clone>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-struct Clone {
-  count: u64,
-  timestamp: String,
-  uniques: u64,
-}
-
-type RepositoryCloneSummary = BTreeMap<String, Clone>;
-
-impl RepositoryCloneResponse {
-  /// Load the currently saved data from file
-  fn get_current(&self, path: &Path) -> Result<RepositoryCloneSummary> {
-    match fs::read_to_string(path) {
-      Ok(data) => {
-        info!("Reading existing data from file: {}", path.display());
-        let summary: RepositoryCloneSummary = serde_json::from_str(&data)?;
-        Ok(summary)
-      }
-      Err(_) => {
-        info!("No existing data found for {}, creating new summary", path.display());
-        Ok(RepositoryCloneSummary::new())
-      }
-    }
-  }
-
-  fn summarize(self, path: &Path) -> Result<RepositoryCloneSummary> {
-    let mut summary = self.get_current(path)?;
-    for v in self.clones.into_iter() {
-      let timestamp = chrono::DateTime::parse_from_rfc3339(&v.timestamp).context("Failed to parse timestamp")?;
-      summary.insert(timestamp.date_naive().to_string(), v);
-    }
-
-    info!("{} summarized", path.display());
-
-    Ok(summary)
-  }
-
-  fn write(self, path: &Path) -> Result<()> {
-    let filepath = path.join("clones.json");
-    let summary = self.summarize(&filepath)?;
-    std::fs::create_dir_all(path)?;
-
-    let json = serde_json::to_string_pretty(&summary)?;
-    std::fs::write(filepath, json)?;
-
-    Ok(())
-  }
-}
-
-async fn get_repository_clones(module: &str) -> Result<RepositoryCloneResponse> {
-  if NO_ACCESS.contains(&module) {
-    bail!("No access to clone data for {}", module);
-  }
-
-  let url = Url::parse(
-    format!("https://api.github.com/repos/terraform-aws-modules/terraform-aws-{module}/traffic/clones").as_str(),
-  )?;
-
-  let token = match env::var(GITHUB_TOKEN_ENV_VAR) {
-    Ok(v) => v,
-    Err(e) => bail!("${GITHUB_TOKEN_ENV_VAR} is not set ({})", e),
-  };
-
-  let resp = Client::builder()
-    .user_agent("Module Download Data")
-    .build()?
-    .get(url)
-    .header("Accept", "application/vnd.github+json")
-    .header("Authorization", format!("Bearer {token}"))
-    .header("X-GitHub-Api-Version", "2022-11-28")
-    .send()
-    .await?;
-
-  if resp.status().is_success() {
-    let response: RepositoryCloneResponse = resp.json().await?;
-    debug!("GET /traffic/clones response: {:#?}", response);
-    Ok(response)
-  } else {
-    error!("GET /traffic/clones response: {:#?}", resp);
-    bail!("Failed to get clones")
+    error!("GET /traffic/{traffic_type} response: {resp:#?}");
+    bail!("Failed to get {traffic_type} data")
   }
 }
 
 /// Collect module traffic data from GitHub
 pub async fn collect(path: &Path, module: &str) -> Result<()> {
-  // GitHub repository data
   let gh_path = path.join("github").join(module.to_lowercase());
 
-  let gh_views = get_page_views(module).await?;
-  gh_views.write(&gh_path)?;
-  let gh_clones = get_repository_clones(module).await?;
-  gh_clones.write(&gh_path)?;
+  let views = get_traffic(module, "views").await?;
+  write_traffic(views, &gh_path, "views.json")?;
+
+  let clones = get_traffic(module, "clones").await?;
+  write_traffic(clones, &gh_path, "clones.json")?;
 
   Ok(())
 }
@@ -215,52 +123,24 @@ pub async fn collect(path: &Path, module: &str) -> Result<()> {
 pub(crate) fn graph(data_path: &Path) -> Result<()> {
   let timestamp = chrono::Local::now().to_utc().format("%Y-%m-%d %H:%M:%S").to_string();
 
-  graph_clones(&timestamp, data_path)?;
-  graph_page_views(&timestamp, data_path)?;
+  graph_traffic(&timestamp, data_path, "Repository Clones", "clones", "github-clones.tpl", "github-clones.md")?;
+  graph_traffic(&timestamp, data_path, "Repository Page Views", "views", "github-page-views.tpl", "github-page-views.md")?;
 
   Ok(())
 }
 
-fn graph_clones(timestamp: &str, data_path: &Path) -> Result<()> {
-  let title = "Repository Clones";
+fn graph_traffic(timestamp: &str, data_path: &Path, title: &str, data_type: &str, template: &str, output: &str) -> Result<()> {
+  let all = create_time_series_graph(title, None, data_type, data_path)?;
+  let data = create_time_series_graph(title, Some(crate::DATA), data_type, data_path)?;
+  let compute = create_time_series_graph(title, Some(crate::COMPUTE), data_type, data_path)?;
+  let serverless = create_time_series_graph(title, Some(crate::SERVERLESS), data_type, data_path)?;
+  let network = create_time_series_graph(title, Some(crate::NETWORKING), data_type, data_path)?;
+  let other = create_time_series_graph(title, Some(crate::OTHER), data_type, data_path)?;
 
-  let all = create_time_series_graph(title, None, "clones", data_path)?;
-  let data = create_time_series_graph(title, Some(crate::DATA), "clones", data_path)?;
-  let compute = create_time_series_graph(title, Some(crate::COMPUTE), "clones", data_path)?;
-  let serverless = create_time_series_graph(title, Some(crate::SERVERLESS), "clones", data_path)?;
-  let network = create_time_series_graph(title, Some(crate::NETWORKING), "clones", data_path)?;
-  let other = create_time_series_graph(title, Some(crate::OTHER), "clones", data_path)?;
-
-  let tpl_path = PathBuf::from("src").join("templates").join("github-clones.tpl");
+  let tpl_path = PathBuf::from("src").join("templates").join(template);
   let tpl = fs::read_to_string(tpl_path)?;
 
-  let out_path = PathBuf::from("docs").join("github-clones.md");
-  let rendered = tpl
-    .replace("{{ date }}", timestamp)
-    .replace("{{ all }}", &all)
-    .replace("{{ data }}", &data)
-    .replace("{{ compute }}", &compute)
-    .replace("{{ serverless }}", &serverless)
-    .replace("{{ network }}", &network)
-    .replace("{{ other }}", &other);
-
-  fs::write(out_path, rendered).map_err(Into::into)
-}
-
-fn graph_page_views(timestamp: &str, data_path: &Path) -> Result<()> {
-  let title = "Repository Page Views";
-
-  let all = create_time_series_graph(title, None, "views", data_path)?;
-  let data = create_time_series_graph(title, Some(crate::DATA), "views", data_path)?;
-  let compute = create_time_series_graph(title, Some(crate::COMPUTE), "views", data_path)?;
-  let serverless = create_time_series_graph(title, Some(crate::SERVERLESS), "views", data_path)?;
-  let network = create_time_series_graph(title, Some(crate::NETWORKING), "views", data_path)?;
-  let other = create_time_series_graph(title, Some(crate::OTHER), "views", data_path)?;
-
-  let tpl_path = PathBuf::from("src").join("templates").join("github-page-views.tpl");
-  let tpl = fs::read_to_string(tpl_path)?;
-
-  let out_path = PathBuf::from("docs").join("github-page-views.md");
+  let out_path = PathBuf::from("docs").join(output);
   let rendered = tpl
     .replace("{{ date }}", timestamp)
     .replace("{{ all }}", &all)
@@ -296,12 +176,12 @@ fn create_time_series_graph(title: &str, category: Option<&str>, data_type: &str
     }
 
     let data = fs::read_to_string(filepath)?;
-    let views: PageViewSummary = serde_json::from_str(&data)?;
+    let summary: TrafficSummary = serde_json::from_str(&data)?;
 
     let mut x_data = vec![];
     let mut y_data = vec![];
 
-    for (_, v) in views.iter() {
+    for (_, v) in summary.iter() {
       let timestamp = chrono::DateTime::parse_from_rfc3339(&v.timestamp).context("Failed to parse timestamp")?;
       x_data.push(timestamp.date_naive());
       y_data.push(v.count.to_string());

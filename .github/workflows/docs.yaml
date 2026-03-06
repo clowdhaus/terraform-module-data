@@ -30,7 +30,7 @@ jobs:
         run: |
           curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/v1.17.6/install-from-binstall-release.sh | bash
           cargo binstall mdbook-catppuccin@2.2.0 -y
-          cargo binstall mdbook-linkcheck@0.7.7 -y
+          cargo binstall mdbook-linkcheck2@0.12.0 -y
 
       - name: Setup Pages
         id: pages

@@ -113,3 +113,59 @@ pub fn titlecase(s: String) -> Result<String> {
     Some(c) => Ok(c.to_uppercase().to_string() + chars.as_str()),
   }
 }
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn test_titlecase_normal() {
+    assert_eq!(titlecase("hello".to_string()).unwrap(), "Hello");
+  }
+
+  #[test]
+  fn test_titlecase_single_char() {
+    assert_eq!(titlecase("a".to_string()).unwrap(), "A");
+  }
+
+  #[test]
+  fn test_titlecase_empty() {
+    assert_eq!(titlecase("".to_string()).unwrap(), "");
+  }
+
+  #[test]
+  fn test_titlecase_already_uppercase() {
+    assert_eq!(titlecase("Hello".to_string()).unwrap(), "Hello");
+  }
+
+  #[test]
+  fn test_titlecase_all_uppercase() {
+    assert_eq!(titlecase("HELLO".to_string()).unwrap(), "HELLO");
+  }
+
+  #[test]
+  fn test_categories_exist() {
+    assert!(CATEGORIES.contains_key(DATA));
+    assert!(CATEGORIES.contains_key(COMPUTE));
+    assert!(CATEGORIES.contains_key(SERVERLESS));
+    assert!(CATEGORIES.contains_key(NETWORKING));
+    assert!(CATEGORIES.contains_key(OTHER));
+  }
+
+  #[test]
+  fn test_categories_not_empty() {
+    for (name, modules) in CATEGORIES.iter() {
+      assert!(!modules.is_empty(), "Category '{name}' should not be empty");
+    }
+  }
+
+  #[test]
+  fn test_s3_object_not_in_categories() {
+    for (_, modules) in CATEGORIES.iter() {
+      assert!(
+        !modules.contains("s3-object"),
+        "s3-object should not be in any category"
+      );
+    }
+  }
+}

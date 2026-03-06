@@ -146,9 +146,6 @@ pub async fn collect(path: &Path, module: &str) -> Result<()> {
 
 type Module = String;
 type ModuleData = BTreeMap<Module, Vec<crate::graph::TraceData>>;
-type ModuleMajorVersion = String;
-type DownloadDates = Vec<NaiveDate>;
-type DownloadCounts = Vec<u64>;
 
 fn collect_trace_data(data_path: &Path) -> Result<ModuleData> {
   let mut data = ModuleData::new();
@@ -170,7 +167,12 @@ fn collect_trace_data(data_path: &Path) -> Result<ModuleData> {
 }
 
 fn get_module_data_traces(mod_path: &Path) -> Result<Vec<crate::graph::TraceData>> {
-  let mut aggregate: BTreeMap<ModuleMajorVersion, (DownloadDates, DownloadCounts)> = BTreeMap::new();
+  let module_name = mod_path
+    .file_name()
+    .and_then(|n| n.to_str())
+    .unwrap_or("");
+
+  let mut aggregate: BTreeMap<String, (Vec<NaiveDate>, Vec<u64>)> = BTreeMap::new();
 
   for fentry in fs::read_dir(mod_path)? {
     let file_path = fentry?.path();
@@ -182,7 +184,7 @@ fn get_module_data_traces(mod_path: &Path) -> Result<Vec<crate::graph::TraceData
     let file_data = fs::read_to_string(&file_path)?;
     let summary = serde_json::from_str::<Vec<Summary>>(&file_data)?;
 
-    let timestamp = NaiveDate::parse_from_str(&file_name.replace(".json", ""), "%Y-%m-%d")?;
+    let timestamp = NaiveDate::parse_from_str(file_name, "%Y-%m-%d")?;
 
     for sum in summary.iter() {
       let version = &sum.major_version;
@@ -200,9 +202,10 @@ fn get_module_data_traces(mod_path: &Path) -> Result<Vec<crate::graph::TraceData
 
   let mut traces = Vec::new();
   for (version, (dates, downloads)) in aggregate.into_iter() {
-    if mod_path.ends_with("eks") && version.parse::<i32>()? < 16 {
-      tracing::error!("Skipping {mod_path:#?} version {version}");
-      // Not interested in EKS versions older than 16
+    // EKS module versions before v16 used a fundamentally different architecture
+    // and are not meaningful for download trend comparison
+    if module_name == "eks" && version.parse::<i32>().unwrap_or(0) < 16 {
+      tracing::debug!("Skipping {mod_path:#?} version {version} (pre-v16 EKS)");
       continue;
     }
     traces.push(crate::graph::TraceData {
@@ -253,4 +256,164 @@ pub(crate) fn graph(data_path: &Path) -> Result<()> {
   graph_downloads(&timestamp, data_path)?;
 
   Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn test_summarize_basic() {
+    let response = Response {
+      data: Data {
+        dtype: "modules".to_string(),
+        id: "test-id".to_string(),
+        attributes: Attributes {
+          downloads: 1000,
+          full_name: "terraform-aws-modules/vpc/aws".to_string(),
+          name: "vpc".to_string(),
+          namespace: "terraform-aws-modules".to_string(),
+          owner_name: "terraform-aws-modules".to_string(),
+          provider_logo_url: "".to_string(),
+          provider_name: "aws".to_string(),
+          source: "".to_string(),
+          verified: true,
+        },
+        relationships: serde_json::json!({}),
+        links: serde_json::json!({}),
+      },
+      included: vec![
+        Included {
+          itype: "module-versions".to_string(),
+          id: "1".to_string(),
+          attributes: IncludedAttributes {
+            created_at: "2023-01-01T00:00:00Z".to_string(),
+            description: "v1.0.0".to_string(),
+            downloads: 500,
+            published_at: "2023-01-01T00:00:00Z".to_string(),
+            source: "".to_string(),
+            updated_at: "2023-01-01T00:00:00Z".to_string(),
+            version: "1.0.0".to_string(),
+          },
+          links: serde_json::json!({}),
+        },
+        Included {
+          itype: "module-versions".to_string(),
+          id: "2".to_string(),
+          attributes: IncludedAttributes {
+            created_at: "2023-06-01T00:00:00Z".to_string(),
+            description: "v1.1.0".to_string(),
+            downloads: 300,
+            published_at: "2023-06-01T00:00:00Z".to_string(),
+            source: "".to_string(),
+            updated_at: "2023-06-01T00:00:00Z".to_string(),
+            version: "1.1.0".to_string(),
+          },
+          links: serde_json::json!({}),
+        },
+        Included {
+          itype: "module-versions".to_string(),
+          id: "3".to_string(),
+          attributes: IncludedAttributes {
+            created_at: "2024-01-01T00:00:00Z".to_string(),
+            description: "v2.0.0".to_string(),
+            downloads: 200,
+            published_at: "2024-01-01T00:00:00Z".to_string(),
+            source: "".to_string(),
+            updated_at: "2024-01-01T00:00:00Z".to_string(),
+            version: "2.0.0".to_string(),
+          },
+          links: serde_json::json!({}),
+        },
+      ],
+    };
+
+    let summary = response.summarize().unwrap();
+    // v1 should aggregate downloads: 500 + 300 = 800
+    assert_eq!(summary.get("01").unwrap().downloads, 800);
+    assert_eq!(summary.get("01").unwrap().created_at, "2023-01-01");
+    // v2 should have 200 downloads
+    assert_eq!(summary.get("02").unwrap().downloads, 200);
+    assert_eq!(summary.get("02").unwrap().created_at, "2024-01-01");
+  }
+
+  #[test]
+  fn test_summarize_skips_v0() {
+    let response = Response {
+      data: Data {
+        dtype: "modules".to_string(),
+        id: "test-id".to_string(),
+        attributes: Attributes {
+          downloads: 100,
+          full_name: "test/mod/aws".to_string(),
+          name: "mod".to_string(),
+          namespace: "test".to_string(),
+          owner_name: "test".to_string(),
+          provider_logo_url: "".to_string(),
+          provider_name: "aws".to_string(),
+          source: "".to_string(),
+          verified: false,
+        },
+        relationships: serde_json::json!({}),
+        links: serde_json::json!({}),
+      },
+      included: vec![Included {
+        itype: "module-versions".to_string(),
+        id: "1".to_string(),
+        attributes: IncludedAttributes {
+          created_at: "2023-01-01T00:00:00Z".to_string(),
+          description: "v0.1.0".to_string(),
+          downloads: 50,
+          published_at: "2023-01-01T00:00:00Z".to_string(),
+          source: "".to_string(),
+          updated_at: "2023-01-01T00:00:00Z".to_string(),
+          version: "0.1.0".to_string(),
+        },
+        links: serde_json::json!({}),
+      }],
+    };
+
+    let summary = response.summarize().unwrap();
+    assert!(summary.is_empty(), "v0 versions should be skipped");
+  }
+
+  #[test]
+  fn test_summarize_invalid_version() {
+    let response = Response {
+      data: Data {
+        dtype: "modules".to_string(),
+        id: "test-id".to_string(),
+        attributes: Attributes {
+          downloads: 0,
+          full_name: "test/mod/aws".to_string(),
+          name: "mod".to_string(),
+          namespace: "test".to_string(),
+          owner_name: "test".to_string(),
+          provider_logo_url: "".to_string(),
+          provider_name: "aws".to_string(),
+          source: "".to_string(),
+          verified: false,
+        },
+        relationships: serde_json::json!({}),
+        links: serde_json::json!({}),
+      },
+      included: vec![Included {
+        itype: "module-versions".to_string(),
+        id: "1".to_string(),
+        attributes: IncludedAttributes {
+          created_at: "2023-01-01T00:00:00Z".to_string(),
+          description: "bad version".to_string(),
+          downloads: 10,
+          published_at: "2023-01-01T00:00:00Z".to_string(),
+          source: "".to_string(),
+          updated_at: "2023-01-01T00:00:00Z".to_string(),
+          version: "invalid".to_string(),
+        },
+        links: serde_json::json!({}),
+      }],
+    };
+
+    let result = response.summarize();
+    assert!(result.is_err(), "Invalid version should return error");
+  }
 }
