@@ -6,7 +6,8 @@ title = "Terraform Module Data"
 
 [output]
 
-[output.linkcheck]
+[output.linkcheck2]
+optional = true
 
 [output.html]
 git-repository-url = "https://github.com/clowdhaus/terraform-module-data/tree/main"
@@ -14,7 +15,6 @@ edit-url-template = "https://github.com/clowdhaus/terraform-module-data/edit/mai
 additional-css = [
   "./theme/overrides.css",
   "./theme/catppuccin.css",
-  "./theme/catppuccin-admonish.css",
 ]
 
 default-theme = "latte"
