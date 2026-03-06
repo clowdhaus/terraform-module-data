@@ -5,7 +5,7 @@ use std::{
 };
 
 use anyhow::{bail, Result};
-use chrono::prelude::*;
+use chrono::{prelude::*, Datelike};
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use tracing::info;
@@ -172,7 +172,9 @@ fn get_module_data_traces(mod_path: &Path) -> Result<Vec<crate::graph::TraceData
     .and_then(|n| n.to_str())
     .unwrap_or("");
 
-  let mut aggregate: BTreeMap<String, (Vec<NaiveDate>, Vec<u64>)> = BTreeMap::new();
+  // Collect daily data per version: BTreeMap<version, BTreeMap<date, downloads>>
+  // Using BTreeMap for dates ensures chronological order
+  let mut daily: BTreeMap<String, BTreeMap<NaiveDate, u64>> = BTreeMap::new();
 
   for fentry in fs::read_dir(mod_path)? {
     let file_path = fentry?.path();
@@ -187,31 +189,36 @@ fn get_module_data_traces(mod_path: &Path) -> Result<Vec<crate::graph::TraceData
     let timestamp = NaiveDate::parse_from_str(file_name, "%Y-%m-%d")?;
 
     for sum in summary.iter() {
-      let version = &sum.major_version;
-      let downloads = sum.downloads;
-
-      aggregate
-        .entry(version.to_string())
-        .and_modify(|(dates, counts)| {
-          dates.push(timestamp);
-          counts.push(downloads);
-        })
-        .or_insert((vec![timestamp], vec![downloads]));
+      daily
+        .entry(sum.major_version.clone())
+        .or_default()
+        .insert(timestamp, sum.downloads);
     }
   }
 
+  // Aggregate daily snapshots to monthly: take last value per month
+  // (downloads are cumulative, so the last snapshot in a month is the most accurate)
   let mut traces = Vec::new();
-  for (version, (dates, downloads)) in aggregate.into_iter() {
+  for (version, date_values) in daily.into_iter() {
     // EKS module versions before v16 used a fundamentally different architecture
     // and are not meaningful for download trend comparison
     if module_name == "eks" && version.parse::<i32>().unwrap_or(0) < 16 {
       tracing::debug!("Skipping {mod_path:#?} version {version} (pre-v16 EKS)");
       continue;
     }
+
+    let mut monthly: BTreeMap<NaiveDate, u64> = BTreeMap::new();
+    for (date, count) in date_values {
+      let month_start = NaiveDate::from_ymd_opt(date.year(), date.month(), 1)
+        .ok_or_else(|| anyhow::anyhow!("Invalid date: {date}"))?;
+      // Last value wins (BTreeMap is sorted, so later dates overwrite earlier ones)
+      monthly.insert(month_start, count);
+    }
+
     traces.push(crate::graph::TraceData {
       name: format!("v{version}.0"),
-      x_data: dates,
-      y_data: downloads.iter().map(|d| d.to_string()).collect(),
+      x_data: monthly.keys().copied().collect(),
+      y_data: monthly.values().map(|d| d.to_string()).collect(),
     });
   }
 

@@ -5,6 +5,7 @@ use std::{
 };
 
 use anyhow::{bail, Context, Result};
+use chrono::Datelike;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use tracing::{debug, error, info};
@@ -178,14 +179,18 @@ fn create_time_series_graph(title: &str, category: Option<&str>, data_type: &str
     let data = fs::read_to_string(filepath)?;
     let summary: TrafficSummary = serde_json::from_str(&data)?;
 
-    let mut x_data = vec![];
-    let mut y_data = vec![];
-
+    // Aggregate daily data into monthly buckets (sum counts per month)
+    let mut monthly: BTreeMap<chrono::NaiveDate, u64> = BTreeMap::new();
     for (_, v) in summary.iter() {
       let timestamp = chrono::DateTime::parse_from_rfc3339(&v.timestamp).context("Failed to parse timestamp")?;
-      x_data.push(timestamp.date_naive());
-      y_data.push(v.count.to_string());
+      let date = timestamp.date_naive();
+      let month_start = chrono::NaiveDate::from_ymd_opt(date.year(), date.month(), 1)
+        .ok_or_else(|| anyhow::anyhow!("Invalid date: {date}"))?;
+      *monthly.entry(month_start).or_insert(0) += v.count;
     }
+
+    let x_data: Vec<chrono::NaiveDate> = monthly.keys().copied().collect();
+    let y_data: Vec<String> = monthly.values().map(|c| c.to_string()).collect();
 
     trace_data.push(crate::graph::TraceData {
       name: dir_name,
