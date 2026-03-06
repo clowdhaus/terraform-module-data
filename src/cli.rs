@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 use anstyle::{AnsiColor, Color, Style};
 use anyhow::Result;
-use clap::{builder::Styles, Args, Parser, Subcommand};
+use clap::{Args, Parser, Subcommand, builder::Styles};
 use clap_verbosity_flag::{InfoLevel, Verbosity};
 use serde::{Deserialize, Serialize};
 

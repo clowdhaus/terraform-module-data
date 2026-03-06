@@ -4,7 +4,7 @@ use std::{
   path::{Path, PathBuf},
 };
 
-use anyhow::{bail, Context, Result};
+use anyhow::{Context, Result, bail};
 use chrono::Datelike;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
@@ -72,7 +72,8 @@ async fn get_traffic(module: &str, traffic_type: &str) -> Result<Vec<TrafficEntr
   }
 
   let url = Url::parse(
-    format!("https://api.github.com/repos/terraform-aws-modules/terraform-aws-{module}/traffic/{traffic_type}").as_str(),
+    format!("https://api.github.com/repos/terraform-aws-modules/terraform-aws-{module}/traffic/{traffic_type}")
+      .as_str(),
   )?;
 
   let token = match env::var(GITHUB_TOKEN_ENV_VAR) {
@@ -124,13 +125,34 @@ pub async fn collect(path: &Path, module: &str) -> Result<()> {
 pub(crate) fn graph(data_path: &Path) -> Result<()> {
   let timestamp = chrono::Local::now().to_utc().format("%Y-%m-%d %H:%M:%S").to_string();
 
-  graph_traffic(&timestamp, data_path, "Repository Clones", "clones", "github-clones.tpl", "github-clones.md")?;
-  graph_traffic(&timestamp, data_path, "Repository Page Views", "views", "github-page-views.tpl", "github-page-views.md")?;
+  graph_traffic(
+    &timestamp,
+    data_path,
+    "Repository Clones",
+    "clones",
+    "github-clones.tpl",
+    "github-clones.md",
+  )?;
+  graph_traffic(
+    &timestamp,
+    data_path,
+    "Repository Page Views",
+    "views",
+    "github-page-views.tpl",
+    "github-page-views.md",
+  )?;
 
   Ok(())
 }
 
-fn graph_traffic(timestamp: &str, data_path: &Path, title: &str, data_type: &str, template: &str, output: &str) -> Result<()> {
+fn graph_traffic(
+  timestamp: &str,
+  data_path: &Path,
+  title: &str,
+  data_type: &str,
+  template: &str,
+  output: &str,
+) -> Result<()> {
   let all = create_time_series_graph(title, None, data_type, data_path)?;
   let data = create_time_series_graph(title, Some(crate::DATA), data_type, data_path)?;
   let compute = create_time_series_graph(title, Some(crate::COMPUTE), data_type, data_path)?;
@@ -168,12 +190,14 @@ fn create_time_series_graph(title: &str, category: Option<&str>, data_type: &str
       .to_owned();
     let filepath = entry.path().join(format!("{data_type}.json"));
 
-    // If directory is not in category, skip
-    // If no category provided, return all
-    if let Some(c) = category {
-      if !crate::CATEGORIES.get(c).ok_or_else(|| anyhow::anyhow!("Unknown category: {c}"))?.contains(&dir_name.as_str()) {
-        continue;
-      }
+    // If directory is not in category, skip; if no category provided, return all
+    if let Some(c) = category
+      && !crate::CATEGORIES
+        .get(c)
+        .ok_or_else(|| anyhow::anyhow!("Unknown category: {c}"))?
+        .contains(&dir_name.as_str())
+    {
+      continue;
     }
 
     let data = fs::read_to_string(filepath)?;

@@ -3,9 +3,9 @@ use std::path::Path;
 use anyhow::Result;
 use chrono::NaiveDate;
 use plotly::{
+  Layout, Plot, Scatter,
   common::Mode,
   layout::{Axis, Legend, RangeSelector, RangeSlider, SelectorButton, SelectorStep, StepMode},
-  Layout, Plot, Scatter,
 };
 
 #[derive(Debug)]

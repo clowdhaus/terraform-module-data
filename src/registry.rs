@@ -4,8 +4,8 @@ use std::{
   path::{Path, PathBuf},
 };
 
-use anyhow::{bail, Result};
-use chrono::{prelude::*, Datelike};
+use anyhow::{Result, bail};
+use chrono::prelude::*;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use tracing::info;
@@ -76,7 +76,10 @@ impl Response {
     let mut summary: BTreeMap<String, Summary> = BTreeMap::new();
     for i in self.included.iter() {
       let mut ver = i.attributes.version.split('.');
-      let major_version = ver.next().ok_or_else(|| anyhow::anyhow!("Invalid version format"))?.to_string();
+      let major_version = ver
+        .next()
+        .ok_or_else(|| anyhow::anyhow!("Invalid version format"))?
+        .to_string();
       let minor_version = ver.next().ok_or_else(|| anyhow::anyhow!("Invalid version format"))?;
       let patch_version = ver.next().ok_or_else(|| anyhow::anyhow!("Invalid version format"))?;
       let key = format!("{:02}", major_version.parse::<u64>().unwrap_or(0));
@@ -167,10 +170,7 @@ fn collect_trace_data(data_path: &Path) -> Result<ModuleData> {
 }
 
 fn get_module_data_traces(mod_path: &Path) -> Result<Vec<crate::graph::TraceData>> {
-  let module_name = mod_path
-    .file_name()
-    .and_then(|n| n.to_str())
-    .unwrap_or("");
+  let module_name = mod_path.file_name().and_then(|n| n.to_str()).unwrap_or("");
 
   // Collect daily data per version: BTreeMap<version, BTreeMap<date, downloads>>
   // Using BTreeMap for dates ensures chronological order
@@ -209,8 +209,8 @@ fn get_module_data_traces(mod_path: &Path) -> Result<Vec<crate::graph::TraceData
 
     let mut monthly: BTreeMap<NaiveDate, u64> = BTreeMap::new();
     for (date, count) in date_values {
-      let month_start = NaiveDate::from_ymd_opt(date.year(), date.month(), 1)
-        .ok_or_else(|| anyhow::anyhow!("Invalid date: {date}"))?;
+      let month_start =
+        NaiveDate::from_ymd_opt(date.year(), date.month(), 1).ok_or_else(|| anyhow::anyhow!("Invalid date: {date}"))?;
       // Last value wins (BTreeMap is sorted, so later dates overwrite earlier ones)
       monthly.insert(month_start, count);
     }
