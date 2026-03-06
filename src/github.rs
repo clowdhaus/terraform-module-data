@@ -4,7 +4,7 @@ use std::{
   path::{Path, PathBuf},
 };
 
-use anyhow::{bail, Result};
+use anyhow::{bail, Context, Result};
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use tracing::{debug, error, info};
@@ -33,7 +33,7 @@ type PageViewSummary = BTreeMap<String, View>;
 
 impl PageViewsResponse {
   /// Load the currently saved data from file
-  fn get_current(&self, path: &PathBuf) -> Result<PageViewSummary> {
+  fn get_current(&self, path: &Path) -> Result<PageViewSummary> {
     match fs::read_to_string(path) {
       Ok(data) => {
         info!("Reading existing data from file: {}", path.display());
@@ -47,11 +47,11 @@ impl PageViewsResponse {
     }
   }
 
-  fn summarize(self, path: &PathBuf) -> Result<PageViewSummary> {
+  fn summarize(self, path: &Path) -> Result<PageViewSummary> {
     let mut summary = self.get_current(path)?;
 
     for v in self.views.into_iter() {
-      let timestamp = chrono::DateTime::parse_from_rfc3339(&v.timestamp).unwrap();
+      let timestamp = chrono::DateTime::parse_from_rfc3339(&v.timestamp).context("Failed to parse timestamp")?;
       summary.insert(timestamp.date_naive().to_string(), v);
     }
 
@@ -60,7 +60,7 @@ impl PageViewsResponse {
     Ok(summary)
   }
 
-  fn write(self, path: &PathBuf) -> Result<()> {
+  fn write(self, path: &Path) -> Result<()> {
     let filepath = path.join("views.json");
     let summary = self.summarize(&filepath)?;
     std::fs::create_dir_all(path)?;
@@ -126,7 +126,7 @@ type RepositoryCloneSummary = BTreeMap<String, Clone>;
 
 impl RepositoryCloneResponse {
   /// Load the currently saved data from file
-  fn get_current(&self, path: &PathBuf) -> Result<RepositoryCloneSummary> {
+  fn get_current(&self, path: &Path) -> Result<RepositoryCloneSummary> {
     match fs::read_to_string(path) {
       Ok(data) => {
         info!("Reading existing data from file: {}", path.display());
@@ -140,10 +140,10 @@ impl RepositoryCloneResponse {
     }
   }
 
-  fn summarize(self, path: &PathBuf) -> Result<RepositoryCloneSummary> {
+  fn summarize(self, path: &Path) -> Result<RepositoryCloneSummary> {
     let mut summary = self.get_current(path)?;
     for v in self.clones.into_iter() {
-      let timestamp = chrono::DateTime::parse_from_rfc3339(&v.timestamp).unwrap();
+      let timestamp = chrono::DateTime::parse_from_rfc3339(&v.timestamp).context("Failed to parse timestamp")?;
       summary.insert(timestamp.date_naive().to_string(), v);
     }
 
@@ -152,7 +152,7 @@ impl RepositoryCloneResponse {
     Ok(summary)
   }
 
-  fn write(self, path: &PathBuf) -> Result<()> {
+  fn write(self, path: &Path) -> Result<()> {
     let filepath = path.join("clones.json");
     let summary = self.summarize(&filepath)?;
     std::fs::create_dir_all(path)?;
@@ -166,7 +166,7 @@ impl RepositoryCloneResponse {
 
 async fn get_repository_clones(module: &str) -> Result<RepositoryCloneResponse> {
   if NO_ACCESS.contains(&module) {
-    bail!("No access to page views for {}", module);
+    bail!("No access to clone data for {}", module);
   }
 
   let url = Url::parse(
@@ -278,13 +278,19 @@ fn create_time_series_graph(title: &str, category: Option<&str>, data_type: &str
 
   for entry in fs::read_dir(data_path.join("github"))? {
     let entry = entry?;
-    let dir_name = entry.path().file_stem().unwrap().to_str().unwrap().to_owned();
+    let dir_name = entry
+      .path()
+      .file_stem()
+      .ok_or_else(|| anyhow::anyhow!("Missing file stem for path: {:?}", entry.path()))?
+      .to_str()
+      .ok_or_else(|| anyhow::anyhow!("Non-UTF8 file stem for path: {:?}", entry.path()))?
+      .to_owned();
     let filepath = entry.path().join(format!("{data_type}.json"));
 
     // If directory is not in category, skip
     // If no category provided, return all
     if let Some(c) = category {
-      if !crate::CATEGORIES.get(c).unwrap().contains(&dir_name.as_str()) {
+      if !crate::CATEGORIES.get(c).ok_or_else(|| anyhow::anyhow!("Unknown category: {c}"))?.contains(&dir_name.as_str()) {
         continue;
       }
     }
@@ -296,7 +302,7 @@ fn create_time_series_graph(title: &str, category: Option<&str>, data_type: &str
     let mut y_data = vec![];
 
     for (_, v) in views.iter() {
-      let timestamp = chrono::DateTime::parse_from_rfc3339(&v.timestamp).unwrap();
+      let timestamp = chrono::DateTime::parse_from_rfc3339(&v.timestamp).context("Failed to parse timestamp")?;
       x_data.push(timestamp.date_naive());
       y_data.push(v.count.to_string());
     }

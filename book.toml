@@ -1,7 +1,6 @@
 [book]
 authors = ["Bryant Biggs"]
 language = "en"
-multilingual = false
 src = "docs"
 title = "Terraform Module Data"
 
@@ -25,4 +24,3 @@ additional-css = [
 
 default-theme = "latte"
 preferred-dark-theme = "frappe"
-preferred-light-theme = "latte"

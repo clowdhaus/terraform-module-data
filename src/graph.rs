@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use anyhow::{Ok, Result};
+use anyhow::Result;
 use chrono::NaiveDate;
 use plotly::{
   common::Mode,
@@ -15,7 +15,7 @@ pub struct Titles {
   pub y_title: String,
 }
 
-pub fn graph(data_path: &Path, _assets_path: &Path) -> Result<()> {
+pub fn graph(data_path: &Path) -> Result<()> {
   crate::github::graph(data_path)?;
   crate::registry::graph(data_path)
 }

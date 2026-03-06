@@ -4,7 +4,7 @@ use std::{
   path::{Path, PathBuf},
 };
 
-use anyhow::Result;
+use anyhow::{bail, Result};
 use chrono::prelude::*;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
@@ -76,9 +76,9 @@ impl Response {
     let mut summary: BTreeMap<String, Summary> = BTreeMap::new();
     for i in self.included.iter() {
       let mut ver = i.attributes.version.split('.');
-      let major_version = ver.next().unwrap().to_string();
-      let minor_version = ver.next().unwrap();
-      let patch_version = ver.next().unwrap();
+      let major_version = ver.next().ok_or_else(|| anyhow::anyhow!("Invalid version format"))?.to_string();
+      let minor_version = ver.next().ok_or_else(|| anyhow::anyhow!("Invalid version format"))?;
+      let patch_version = ver.next().ok_or_else(|| anyhow::anyhow!("Invalid version format"))?;
       let key = format!("{:02}", major_version.parse::<u64>().unwrap_or(0));
 
       if major_version == "0" {
@@ -128,6 +128,9 @@ async fn get(module: &str) -> Result<Response> {
     .send()
     .await?;
 
+  if !resp.status().is_success() {
+    bail!("Registry API returned {}", resp.status());
+  }
   let response: Response = resp.json().await?;
   Ok(response)
 }
@@ -152,7 +155,12 @@ fn collect_trace_data(data_path: &Path) -> Result<ModuleData> {
 
   for entry in fs::read_dir(data_path.join("registry"))? {
     let mod_path = entry?.path();
-    let module = mod_path.file_stem().unwrap().to_str().unwrap().to_owned();
+    let module = mod_path
+      .file_stem()
+      .ok_or_else(|| anyhow::anyhow!("Missing file stem for path: {:?}", mod_path))?
+      .to_str()
+      .ok_or_else(|| anyhow::anyhow!("Non-UTF8 file stem for path: {:?}", mod_path))?
+      .to_owned();
 
     let traces = get_module_data_traces(&mod_path)?;
     data.insert(module, traces);
@@ -166,7 +174,11 @@ fn get_module_data_traces(mod_path: &Path) -> Result<Vec<crate::graph::TraceData
 
   for fentry in fs::read_dir(mod_path)? {
     let file_path = fentry?.path();
-    let file_name = file_path.file_stem().unwrap().to_str().unwrap();
+    let file_name = file_path
+      .file_stem()
+      .ok_or_else(|| anyhow::anyhow!("Missing file stem for path: {:?}", file_path))?
+      .to_str()
+      .ok_or_else(|| anyhow::anyhow!("Non-UTF8 file stem for path: {:?}", file_path))?;
     let file_data = fs::read_to_string(&file_path)?;
     let summary = serde_json::from_str::<Vec<Summary>>(&file_data)?;
 

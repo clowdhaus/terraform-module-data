@@ -19,11 +19,8 @@ async fn main() -> Result<()> {
   // Root directory where data is stored
   let data_path = PathBuf::from("data");
 
-  // Directory where generated graphs are stored
-  let assets_path = PathBuf::from("assets");
-
   match &cli.command {
     tmd::Commands::CollectData(download) => download.collect(data_path).await,
-    tmd::Commands::Graph => graph::graph(&data_path, &assets_path),
+    tmd::Commands::Graph => graph::graph(&data_path),
   }
 }

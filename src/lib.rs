@@ -35,7 +35,6 @@ static CATEGORIES: LazyLock<HashMap<&str, HashSet<&str>>> = LazyLock::new(|| {
         "rds-aurora",
         "redshift",
         "s3-bucket",
-        "s3-object",
       ]),
     ),
     (
@@ -107,6 +106,10 @@ static CATEGORIES: LazyLock<HashMap<&str, HashSet<&str>>> = LazyLock::new(|| {
   ])
 });
 
-pub fn titlecase(mut s: String) -> Result<String> {
-  Ok(s.remove(0).to_uppercase().to_string() + &s)
+pub fn titlecase(s: String) -> Result<String> {
+  let mut chars = s.chars();
+  match chars.next() {
+    None => Ok(String::new()),
+    Some(c) => Ok(c.to_uppercase().to_string() + chars.as_str()),
+  }
 }

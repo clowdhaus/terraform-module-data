@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-
-cargo build --release
+set -euo pipefail
 
 # Collect data for all modules
 gh repo list terraform-aws-modules --source --limit 100 --json name --jq '.[].name' | \
