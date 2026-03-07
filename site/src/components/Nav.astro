@@ -1,69 +1,51 @@
 ---
-const currentPath = Astro.url.pathname;
 const base = import.meta.env.BASE_URL;
-
-const links = [
-  { href: `${base}/`, label: 'Overview' },
-  { href: `${base}/github-clones/`, label: 'GitHub Clones' },
-  { href: `${base}/github-views/`, label: 'GitHub Views' },
-  { href: `${base}/registry/`, label: 'Registry Downloads' },
-];
 ---
 
-<nav>
-  <div class="nav-inner container">
-    <a href={`${base}/`} class="nav-brand">Terraform Module Data</a>
-    <div class="nav-links">
-      {links.map(link => (
-        <a
-          href={link.href}
-          class:list={['nav-link', { active: currentPath === link.href }]}
-        >
-          {link.label}
-        </a>
-      ))}
-    </div>
+<header>
+  <div class="header-inner">
+    <a href={`${base}/`} class="brand">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="brand-icon">
+        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+      </svg>
+      <span>Terraform Module Data</span>
+    </a>
+    <a href="https://github.com/clowdhaus/terraform-module-data" class="gh-link">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+    </a>
   </div>
-</nav>
+</header>
 
 <style>
-  nav {
-    background: var(--ctp-mantle);
-    border-bottom: 1px solid var(--ctp-surface0);
-    padding: 0.75rem 0;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-  .nav-inner {
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    height: 3.5rem;
     display: flex;
     align-items: center;
-    gap: 2rem;
+    background: var(--bg-card);
   }
-  .nav-brand {
-    font-weight: 700;
-    font-size: 1.1rem;
-    color: var(--ctp-text);
-  }
-  .nav-brand:hover { text-decoration: none; }
-  .nav-links {
+  .header-inner {
+    max-width: 1440px;
+    margin: 0 auto;
+    width: 100%;
     display: flex;
-    gap: 1rem;
+    align-items: center;
+    justify-content: space-between;
   }
-  .nav-link {
-    color: var(--ctp-overlay1);
-    font-size: 0.9rem;
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    transition: color 0.15s, background 0.15s;
+  .brand {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
   }
-  .nav-link:hover {
-    color: var(--ctp-text);
-    background: var(--ctp-surface0);
-    text-decoration: none;
+  .brand:hover { text-decoration: none; }
+  .brand-icon { color: var(--accent); }
+  .gh-link {
+    color: var(--text-tertiary);
+    display: flex;
   }
-  .nav-link.active {
-    color: var(--ctp-blue);
-    background: var(--ctp-surface0);
-  }
+  .gh-link:hover { color: var(--text-secondary); }
 </style>

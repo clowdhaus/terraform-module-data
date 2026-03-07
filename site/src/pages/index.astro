@@ -1,58 +1,268 @@
 ---
 import Base from '../layouts/Base.astro';
+import Chart from '../components/Chart.astro';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
+const load = (file: string) => JSON.parse(readFileSync(join(process.cwd(), 'public', 'data', file), 'utf-8'));
+
+const clones = load('github-clones.json');
+const views = load('github-views.json');
+const registry = load('registry-downloads.json');
+
+// Sort by total value (sum of last data point across datasets), descending
+const sumLast = (datasets: any[]) =>
+  datasets.reduce((sum: number, ds: any) => sum + (ds.data.length ? ds.data[ds.data.length - 1].y : 0), 0);
+
+const cloneModules = (clones.sections.find((s: any) => s.title === 'All')?.datasets ?? [])
+  .sort((a: any, b: any) => sumLast([b]) - sumLast([a]));
+const viewModules = (views.sections.find((s: any) => s.title === 'All')?.datasets ?? [])
+  .sort((a: any, b: any) => sumLast([b]) - sumLast([a]));
+const registryModules = registry.sections
+  .sort((a: any, b: any) => sumLast(b.datasets) - sumLast(a.datasets));
+
+const updatedAt = clones.updated_at;
 ---
 
-<Base title="Overview">
-  <h1>Terraform Module Data</h1>
-  <p class="subtitle">
-    Download and traffic analytics for
-    <a href="https://github.com/terraform-aws-modules">terraform-aws-modules</a>.
-  </p>
+<Base title="Dashboard">
+  <div class="toolbar">
+    <div class="tabs" role="tablist">
+      <button class="tab active" data-tab="registry" role="tab" aria-selected="true">Downloads</button>
+      <button class="tab" data-tab="clones" role="tab" aria-selected="false">Clones</button>
+      <button class="tab" data-tab="views" role="tab" aria-selected="false">Views</button>
+    </div>
+    <span class="meta">Updated {updatedAt} UTC</span>
+  </div>
 
-  <div class="cards">
-    <a href={`${import.meta.env.BASE_URL}/github-clones/`} class="card">
-      <h2>GitHub Clones</h2>
-      <p>Repository clone traffic over time</p>
-    </a>
-    <a href={`${import.meta.env.BASE_URL}/github-views/`} class="card">
-      <h2>GitHub Views</h2>
-      <p>Repository page view traffic over time</p>
-    </a>
-    <a href={`${import.meta.env.BASE_URL}/registry/`} class="card">
-      <h2>Registry Downloads</h2>
-      <p>Terraform Registry download counts by version</p>
-    </a>
+  <div class="tab-panel active" id="panel-registry">
+    <div class="grid">
+      {registryModules.map((section: any) => (
+        <Chart id={`registry-${section.title}`} title={`terraform-aws-${section.title}`} datasets={section.datasets} />
+      ))}
+    </div>
+  </div>
+
+  <div class="tab-panel" id="panel-clones">
+    <div class="grid">
+      {cloneModules.map((ds: any) => (
+        <Chart id={`clones-${ds.label}`} title={`terraform-aws-${ds.label}`} datasets={[ds]} />
+      ))}
+    </div>
+  </div>
+
+  <div class="tab-panel" id="panel-views">
+    <div class="grid">
+      {viewModules.map((ds: any) => (
+        <Chart id={`views-${ds.label}`} title={`terraform-aws-${ds.label}`} datasets={[ds]} />
+      ))}
+    </div>
   </div>
 </Base>
 
-<style>
-  h1 { margin-bottom: 0.5rem; }
-  .subtitle {
-    color: var(--ctp-subtext0);
-    margin-bottom: 2rem;
-    font-size: 1.1rem;
+<script>
+  import ChartJS from 'chart.js/auto';
+  import 'chartjs-adapter-date-fns';
+  import zoomPlugin from 'chartjs-plugin-zoom';
+
+  ChartJS.register(zoomPlugin);
+  ChartJS.defaults.font.family = "'Inter', -apple-system, BlinkMacSystemFont, sans-serif";
+
+  // De-saturated, soft palette that works on dark backgrounds without bleeding
+  const PALETTE = [
+    '#64B5F6', '#81C784', '#FFB74D', '#E57373', '#BA68C8',
+    '#4FC3F7', '#AED581', '#FFD54F', '#FF8A65', '#9575CD',
+  ];
+
+  const instances = new Map<string, ChartJS>();
+
+  function createGradient(ctx: CanvasRenderingContext2D, color: string) {
+    const gradient = ctx.createLinearGradient(0, 0, 0, ctx.canvas.height);
+    gradient.addColorStop(0, color + '30');
+    gradient.addColorStop(0.7, color + '08');
+    gradient.addColorStop(1, color + '00');
+    return gradient;
   }
-  .cards {
+
+  function initChart(canvas: HTMLCanvasElement) {
+    if (instances.has(canvas.id)) return;
+
+    const datasets = JSON.parse(canvas.dataset.datasets || '[]');
+    const multi = datasets.length > 1;
+    const ctx = canvas.getContext('2d')!;
+
+    const chartDatasets = datasets.map((ds: any, i: number) => {
+      const color = PALETTE[i % PALETTE.length];
+      return {
+        label: ds.label,
+        data: ds.data.map((p: any) => ({ x: p.x, y: p.y })),
+        borderColor: color,
+        backgroundColor: createGradient(ctx, color),
+        borderWidth: 2,
+        pointRadius: 0,
+        pointHoverRadius: 4,
+        pointHoverBackgroundColor: color,
+        pointHoverBorderColor: '#fff',
+        pointHoverBorderWidth: 2,
+        tension: 0.4,
+        fill: !multi,
+      };
+    });
+
+    const chart = new ChartJS(canvas, {
+      type: 'line',
+      data: { datasets: chartDatasets },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        aspectRatio: 1.6,
+        interaction: { mode: 'x', intersect: false },
+        scales: {
+          x: {
+            type: 'time',
+            time: { unit: 'month', tooltipFormat: 'MMM yyyy' },
+            grid: { display: false },
+            ticks: {
+              color: '#6e6e88',
+              font: { size: 11 },
+              maxTicksLimit: 6,
+            },
+            border: { display: false },
+          },
+          y: {
+            grid: { color: '#333360', lineWidth: 0.5 },
+            ticks: {
+              color: '#6e6e88',
+              font: { size: 11 },
+              padding: 8,
+              maxTicksLimit: 5,
+              callback: function(value: number | string) {
+                const v = Number(value);
+                if (v >= 1e6) return (v / 1e6).toFixed(1) + 'M';
+                if (v >= 1e3) return (v / 1e3).toFixed(0) + 'K';
+                return v.toString();
+              },
+            },
+            border: { display: false },
+          },
+        },
+        plugins: {
+          legend: {
+            display: multi,
+            position: 'bottom',
+            labels: {
+              color: '#a0a0b8',
+              font: { size: 11 },
+              padding: 10,
+              usePointStyle: true,
+              pointStyle: 'circle',
+              boxWidth: 6,
+              boxHeight: 6,
+            },
+          },
+          tooltip: {
+            backgroundColor: '#2a2a4a',
+            titleColor: '#e8e8f0',
+            bodyColor: '#a0a0b8',
+            borderColor: '#4a4a80',
+            borderWidth: 1,
+            padding: 10,
+            bodyFont: { size: 12 },
+            titleFont: { size: 12 },
+            caretSize: 0,
+            cornerRadius: 8,
+            displayColors: multi,
+            boxPadding: 4,
+          },
+          zoom: {
+            pan: { enabled: true, mode: 'x' },
+            zoom: {
+              wheel: { enabled: true },
+              pinch: { enabled: true },
+              mode: 'x',
+            },
+          },
+        },
+      },
+    });
+
+    instances.set(canvas.id, chart);
+  }
+
+  function initVisibleCharts() {
+    const active = document.querySelector('.tab-panel.active');
+    if (!active) return;
+    active.querySelectorAll<HTMLCanvasElement>('canvas[data-datasets]').forEach(initChart);
+  }
+
+  document.querySelectorAll<HTMLButtonElement>('.tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => {
+        t.classList.remove('active');
+        t.setAttribute('aria-selected', 'false');
+      });
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+
+      btn.classList.add('active');
+      btn.setAttribute('aria-selected', 'true');
+      const panel = document.getElementById(`panel-${btn.dataset.tab}`);
+      if (panel) {
+        panel.classList.add('active');
+        requestAnimationFrame(() => initVisibleCharts());
+      }
+    });
+  });
+
+  initVisibleCharts();
+</script>
+
+<style>
+  .toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+  }
+  .tabs {
+    display: flex;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 3px;
+    gap: 2px;
+  }
+  .tab {
+    background: none;
+    border: none;
+    color: var(--text-tertiary);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    padding: 0.375rem 1rem;
+    cursor: pointer;
+    border-radius: 7px;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  .tab:hover {
+    color: var(--text-secondary);
+  }
+  .tab.active {
+    color: var(--text);
+    background: var(--bg-elevated);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  }
+  .meta {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+  }
+  .tab-panel {
+    display: none;
+  }
+  .tab-panel.active {
+    display: block;
+  }
+  .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(540px, 1fr));
     gap: 1rem;
   }
-  .card {
-    background: var(--ctp-mantle);
-    border: 1px solid var(--ctp-surface0);
-    border-radius: 8px;
-    padding: 1.5rem;
-    transition: border-color 0.15s;
-    color: var(--ctp-text);
-  }
-  .card:hover {
-    border-color: var(--ctp-blue);
-    text-decoration: none;
-  }
-  .card h2 {
-    font-size: 1.2rem;
-    margin-bottom: 0.5rem;
-    color: var(--ctp-blue);
-  }
-  .card p { color: var(--ctp-subtext0); font-size: 0.9rem; }
 </style>

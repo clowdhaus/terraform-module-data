@@ -13,103 +13,40 @@ interface Props {
   id: string;
   title: string;
   datasets: Dataset[];
-  yLabel?: string;
-  mode?: 'lines' | 'markers';
 }
 
-const { id, title, datasets, yLabel = 'Count', mode = 'lines' } = Astro.props;
+const { id, title, datasets } = Astro.props;
 ---
 
-<div class="chart-container">
-  <h3>{title}</h3>
+<div class="chart-card">
+  <span class="chart-title">{title}</span>
   <canvas
     id={id}
     data-datasets={JSON.stringify(datasets)}
-    data-y-label={yLabel}
-    data-mode={mode}
   ></canvas>
 </div>
 
-<script>
-  import Chart from 'chart.js/auto';
-  import 'chartjs-adapter-date-fns';
-  import zoomPlugin from 'chartjs-plugin-zoom';
-
-  Chart.register(zoomPlugin);
-
-  const COLORS = [
-    '#89b4fa', '#a6e3a1', '#f38ba8', '#fab387', '#cba6f7',
-    '#f9e2af', '#94e2d5', '#89dceb', '#f5c2e7', '#f2cdcd',
-    '#f5e0dc', '#b4befe', '#74c7ec', '#eba0ac',
-  ];
-
-  function initChart(canvas: HTMLCanvasElement) {
-    const datasets = JSON.parse(canvas.dataset.datasets || '[]');
-    const yLabel = canvas.dataset.yLabel || 'Count';
-    const mode = canvas.dataset.mode || 'lines';
-
-    const chartDatasets = datasets.map((ds: any, i: number) => ({
-      label: ds.label,
-      data: ds.data.map((p: any) => ({ x: p.x, y: p.y })),
-      borderColor: COLORS[i % COLORS.length],
-      backgroundColor: COLORS[i % COLORS.length] + '20',
-      borderWidth: 2,
-      pointRadius: mode === 'markers' ? 4 : 2,
-      pointHoverRadius: 6,
-      tension: 0.1,
-    }));
-
-    new Chart(canvas, {
-      type: 'line',
-      data: { datasets: chartDatasets },
-      options: {
-        responsive: true,
-        maintainAspectRatio: true,
-        aspectRatio: 2.5,
-        interaction: { mode: 'index', intersect: false },
-        scales: {
-          x: {
-            type: 'time',
-            time: { unit: 'month', tooltipFormat: 'MMM yyyy' },
-            grid: { color: '#31324420' },
-            ticks: { color: '#6c7086' },
-          },
-          y: {
-            title: { display: true, text: yLabel, color: '#a6adc8' },
-            grid: { color: '#31324420' },
-            ticks: {
-              color: '#6c7086',
-              callback: function(value: number | string) {
-                const v = Number(value);
-                if (v >= 1e6) return (v / 1e6).toFixed(1) + 'M';
-                if (v >= 1e3) return (v / 1e3).toFixed(0) + 'K';
-                return v.toString();
-              },
-            },
-          },
-        },
-        plugins: {
-          legend: {
-            labels: { color: '#cdd6f4', usePointStyle: true, pointStyle: 'circle' },
-          },
-          zoom: {
-            pan: { enabled: true, mode: 'x' },
-            zoom: {
-              wheel: { enabled: true },
-              pinch: { enabled: true },
-              drag: {
-                enabled: true,
-                backgroundColor: 'rgba(137,180,250,0.1)',
-                borderColor: '#89b4fa',
-              },
-              mode: 'x',
-            },
-          },
-        },
-      },
-    });
+<style>
+  .chart-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem 1.5rem 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
   }
-
-  // Initialize all chart canvases on the page
-  document.querySelectorAll<HTMLCanvasElement>('canvas[data-datasets]').forEach(initChart);
-</script>
+  .chart-card:hover {
+    border-color: var(--border-hover);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+  }
+  .chart-title {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  canvas {
+    width: 100% !important;
+  }
+</style>

@@ -15,11 +15,10 @@ const { title } = Astro.props;
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title} - Terraform Module Data</title>
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   </head>
   <body>
     <Nav />
-    <main class="container">
+    <main>
       <slot />
     </main>
   </body>
@@ -27,6 +26,8 @@ const { title } = Astro.props;
 
 <style>
   main {
-    padding: 2rem 1.5rem;
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 1.5rem 2rem;
   }
 </style>
