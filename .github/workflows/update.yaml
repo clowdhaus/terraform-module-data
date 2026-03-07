@@ -45,5 +45,5 @@ jobs:
         with:
           author_name: bryantbiggs
           author_email: ${{ secrets.AUTHOR_EMAIL }}
-          message: 'chore: Daily data collection and graph update'
+          message: 'chore: daily data collection update'
           push: true
