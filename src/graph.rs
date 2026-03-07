@@ -1,76 +1,97 @@
-use std::path::Path;
+use std::{fs, path::Path};
 
 use anyhow::Result;
-use chrono::NaiveDate;
-use plotly::{
-  Layout, Plot, Scatter,
-  common::Mode,
-  layout::{Axis, Legend, RangeSelector, RangeSlider, SelectorButton, SelectorStep, StepMode},
-};
+use chrono::{Datelike, NaiveDate};
+use serde::Serialize;
 
-#[derive(Debug)]
-pub struct Titles {
+#[derive(Debug, Serialize)]
+pub struct ChartDataset {
+  pub label: String,
+  pub data: Vec<DataPoint>,
+}
+
+#[derive(Debug, Serialize)]
+pub struct DataPoint {
+  pub x: String,
+  pub y: u64,
+}
+
+#[derive(Debug, Serialize)]
+pub struct ChartPage {
   pub title: String,
-  pub x_title: String,
-  pub y_title: String,
+  pub updated_at: String,
+  pub sections: Vec<ChartSection>,
+}
+
+#[derive(Debug, Serialize)]
+pub struct ChartSection {
+  pub title: String,
+  pub datasets: Vec<ChartDataset>,
 }
 
 pub fn graph(data_path: &Path) -> Result<()> {
-  crate::github::graph(data_path)?;
-  crate::registry::graph(data_path)
+  let output_path = Path::new("site").join("public").join("data");
+  fs::create_dir_all(&output_path)?;
+
+  crate::github::graph(data_path, &output_path)?;
+  crate::registry::graph(data_path, &output_path)?;
+
+  Ok(())
 }
 
-#[derive(Default, Debug)]
-pub struct TraceData {
-  pub name: String,
-  pub x_data: Vec<NaiveDate>,
-  pub y_data: Vec<String>,
+/// Filter out the current (incomplete) month from date/value pairs
+pub fn filter_incomplete_month(dates: Vec<NaiveDate>, values: Vec<u64>) -> (Vec<NaiveDate>, Vec<u64>) {
+  let today = chrono::Local::now().date_naive();
+  let current_month_start = NaiveDate::from_ymd_opt(today.year(), today.month(), 1);
+
+  match current_month_start {
+    Some(cutoff) => {
+      let (d, v): (Vec<_>, Vec<_>) = dates
+        .into_iter()
+        .zip(values)
+        .filter(|(date, _)| *date < cutoff)
+        .unzip();
+      (d, v)
+    }
+    None => (dates, values),
+  }
 }
 
-pub(crate) fn plot_time_series(name: &str, data: Vec<TraceData>, titles: Titles, mode: Mode) -> Result<String> {
-  let mut plot = Plot::new();
+pub fn write_chart_page(path: &Path, filename: &str, page: &ChartPage) -> Result<()> {
+  let json = serde_json::to_string_pretty(page)?;
+  fs::write(path.join(filename), json)?;
+  Ok(())
+}
 
-  for d in data.into_iter() {
-    let trace = Scatter::new(d.x_data, d.y_data).mode(mode.clone()).name(d.name);
-    plot.add_trace(trace);
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn test_filter_incomplete_month_removes_current() {
+    let today = chrono::Local::now().date_naive();
+    let current_month = NaiveDate::from_ymd_opt(today.year(), today.month(), 1).unwrap();
+    let last_month = current_month - chrono::Months::new(1);
+
+    let dates = vec![last_month, current_month];
+    let values = vec![100, 50];
+
+    let (filtered_dates, filtered_values) = filter_incomplete_month(dates, values);
+    assert_eq!(filtered_dates.len(), 1);
+    assert_eq!(filtered_dates[0], last_month);
+    assert_eq!(filtered_values[0], 100);
   }
 
-  let layout = Layout::new()
-    .title(&titles.title)
-    .legend(Legend::new().title("Module"))
-    .height(650)
-    .x_axis(
-      Axis::new()
-        .title(&titles.x_title)
-        .range_slider(RangeSlider::new().visible(true))
-        .range_selector(RangeSelector::new().buttons(vec![
-                        SelectorButton::new()
-                            .count(1)
-                            .label("1m")
-                            .step(SelectorStep::Month)
-                            .step_mode(StepMode::Backward),
-                        SelectorButton::new()
-                            .count(6)
-                            .label("6m")
-                            .step(SelectorStep::Month)
-                            .step_mode(StepMode::Backward),
-                        SelectorButton::new()
-                            .count(1)
-                            .label("YTD")
-                            .step(SelectorStep::Year)
-                            .step_mode(StepMode::ToDate),
-                        SelectorButton::new()
-                            .count(1)
-                            .label("1y")
-                            .step(SelectorStep::Year)
-                            .step_mode(StepMode::Backward),
-                        SelectorButton::new().step(SelectorStep::All),
-                    ])),
-    )
-    .y_axis(Axis::new().title(&titles.y_title));
-  plot.set_layout(layout);
+  #[test]
+  fn test_filter_incomplete_month_keeps_complete() {
+    let dates = vec![
+      NaiveDate::from_ymd_opt(2024, 1, 1).unwrap(),
+      NaiveDate::from_ymd_opt(2024, 2, 1).unwrap(),
+    ];
+    let values = vec![100, 200];
 
-  // plot.show();
-
-  Ok(plot.to_inline_html(Some(name)))
+    let (filtered_dates, filtered_values) = filter_incomplete_month(dates, values);
+    assert_eq!(filtered_dates.len(), 2);
+    assert_eq!(filtered_values, vec![100, 200]);
+  }
 }

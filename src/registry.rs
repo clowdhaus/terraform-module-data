@@ -148,7 +148,14 @@ pub async fn collect(path: &Path, module: &str) -> Result<()> {
 }
 
 type Module = String;
-type ModuleData = BTreeMap<Module, Vec<crate::graph::TraceData>>;
+type ModuleData = BTreeMap<Module, Vec<VersionTrace>>;
+
+#[derive(Debug)]
+struct VersionTrace {
+  name: String,
+  dates: Vec<NaiveDate>,
+  values: Vec<u64>,
+}
 
 fn collect_trace_data(data_path: &Path) -> Result<ModuleData> {
   let mut data = ModuleData::new();
@@ -169,11 +176,9 @@ fn collect_trace_data(data_path: &Path) -> Result<ModuleData> {
   Ok(data)
 }
 
-fn get_module_data_traces(mod_path: &Path) -> Result<Vec<crate::graph::TraceData>> {
+fn get_module_data_traces(mod_path: &Path) -> Result<Vec<VersionTrace>> {
   let module_name = mod_path.file_name().and_then(|n| n.to_str()).unwrap_or("");
 
-  // Collect daily data per version: BTreeMap<version, BTreeMap<date, downloads>>
-  // Using BTreeMap for dates ensures chronological order
   let mut daily: BTreeMap<String, BTreeMap<NaiveDate, u64>> = BTreeMap::new();
 
   for fentry in fs::read_dir(mod_path)? {
@@ -196,12 +201,8 @@ fn get_module_data_traces(mod_path: &Path) -> Result<Vec<crate::graph::TraceData
     }
   }
 
-  // Aggregate daily snapshots to monthly: take last value per month
-  // (downloads are cumulative, so the last snapshot in a month is the most accurate)
   let mut traces = Vec::new();
   for (version, date_values) in daily.into_iter() {
-    // EKS module versions before v16 used a fundamentally different architecture
-    // and are not meaningful for download trend comparison
     if module_name == "eks" && version.parse::<i32>().unwrap_or(0) < 16 {
       tracing::debug!("Skipping {mod_path:#?} version {version} (pre-v16 EKS)");
       continue;
@@ -211,58 +212,65 @@ fn get_module_data_traces(mod_path: &Path) -> Result<Vec<crate::graph::TraceData
     for (date, count) in date_values {
       let month_start =
         NaiveDate::from_ymd_opt(date.year(), date.month(), 1).ok_or_else(|| anyhow::anyhow!("Invalid date: {date}"))?;
-      // Last value wins (BTreeMap is sorted, so later dates overwrite earlier ones)
       monthly.insert(month_start, count);
     }
 
-    traces.push(crate::graph::TraceData {
+    let dates: Vec<NaiveDate> = monthly.keys().copied().collect();
+    let values: Vec<u64> = monthly.values().copied().collect();
+    let (dates, values) = crate::graph::filter_incomplete_month(dates, values);
+
+    traces.push(VersionTrace {
       name: format!("v{version}.0"),
-      x_data: monthly.keys().copied().collect(),
-      y_data: monthly.values().map(|d| d.to_string()).collect(),
+      dates,
+      values,
     });
   }
 
   Ok(traces)
 }
 
-fn graph_downloads(timestamp: &str, data_path: &Path) -> Result<()> {
-  let title = "Terraform Registry Downloads";
-  let tdata = crate::registry::collect_trace_data(data_path)?;
-  let mut body = String::new();
-
-  for (module, traces) in tdata.into_iter() {
-    body.push_str(&format!("## {module}\n\n"));
-
-    let html_title = format!("{module} - {title}");
-    let titles = crate::graph::Titles {
-      title: html_title.clone(),
-      x_title: "Date".to_string(),
-      y_title: "Total Downloads".to_string(),
-    };
-
-    info!("Plotting {} time series", html_title);
-
-    let plot = crate::graph::plot_time_series(&html_title, traces, titles, plotly::common::Mode::Markers)?;
-
-    body.push_str(plot.as_str());
-    body.push_str("\n\n");
-  }
-
-  let tpl_path = PathBuf::from("src").join("templates").join("registry-downloads.tpl");
-  let tpl = fs::read_to_string(tpl_path)?;
-  let out_path = PathBuf::from("docs").join("registry-downloads.md");
-
-  let rendered = tpl.replace("{{ body }}", &body).replace("{{ date }}", timestamp);
-  fs::write(out_path, rendered).map_err(Into::into)
-}
-
-/// Graph the data collected and insert into mdbook docs
-pub(crate) fn graph(data_path: &Path) -> Result<()> {
+/// Output JSON data for the Astro site
+pub(crate) fn graph(data_path: &Path, output_path: &Path) -> Result<()> {
   let timestamp = chrono::Local::now().to_utc().format("%Y-%m-%d %H:%M:%S").to_string();
 
-  graph_downloads(&timestamp, data_path)?;
+  let title = "Terraform Registry Downloads";
+  let tdata = collect_trace_data(data_path)?;
 
-  Ok(())
+  let mut sections = Vec::new();
+  for (module, traces) in tdata.into_iter() {
+    let datasets = traces
+      .into_iter()
+      .map(|t| {
+        let data_points = t
+          .dates
+          .iter()
+          .zip(t.values.iter())
+          .map(|(d, v)| crate::graph::DataPoint {
+            x: d.to_string(),
+            y: *v,
+          })
+          .collect();
+        crate::graph::ChartDataset {
+          label: t.name,
+          data: data_points,
+        }
+      })
+      .collect();
+
+    sections.push(crate::graph::ChartSection {
+      title: module,
+      datasets,
+    });
+  }
+
+  let page = crate::graph::ChartPage {
+    title: title.to_string(),
+    updated_at: timestamp,
+    sections,
+  };
+
+  info!("Writing registry-downloads.json");
+  crate::graph::write_chart_page(output_path, "registry-downloads.json", &page)
 }
 
 #[cfg(test)]

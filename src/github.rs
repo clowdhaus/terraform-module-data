@@ -1,7 +1,7 @@
 use std::{
   collections::BTreeMap,
   env, fs,
-  path::{Path, PathBuf},
+  path::Path,
 };
 
 use anyhow::{Context, Result, bail};
@@ -121,63 +121,58 @@ pub async fn collect(path: &Path, module: &str) -> Result<()> {
   Ok(())
 }
 
-/// Graph the data collected and insert into mdbook docs
-pub(crate) fn graph(data_path: &Path) -> Result<()> {
+/// Output JSON data for the Astro site
+pub(crate) fn graph(data_path: &Path, output_path: &Path) -> Result<()> {
   let timestamp = chrono::Local::now().to_utc().format("%Y-%m-%d %H:%M:%S").to_string();
 
-  graph_traffic(
-    &timestamp,
-    data_path,
-    "Repository Clones",
-    "clones",
-    "github-clones.tpl",
-    "github-clones.md",
-  )?;
-  graph_traffic(
-    &timestamp,
-    data_path,
-    "Repository Page Views",
-    "views",
-    "github-page-views.tpl",
-    "github-page-views.md",
-  )?;
+  write_traffic_json(&timestamp, data_path, output_path, "Repository Clones", "clones", "github-clones.json")?;
+  write_traffic_json(&timestamp, data_path, output_path, "Repository Page Views", "views", "github-views.json")?;
 
   Ok(())
 }
 
-fn graph_traffic(
+fn write_traffic_json(
   timestamp: &str,
   data_path: &Path,
+  output_path: &Path,
   title: &str,
   data_type: &str,
-  template: &str,
-  output: &str,
+  filename: &str,
 ) -> Result<()> {
-  let all = create_time_series_graph(title, None, data_type, data_path)?;
-  let data = create_time_series_graph(title, Some(crate::DATA), data_type, data_path)?;
-  let compute = create_time_series_graph(title, Some(crate::COMPUTE), data_type, data_path)?;
-  let serverless = create_time_series_graph(title, Some(crate::SERVERLESS), data_type, data_path)?;
-  let network = create_time_series_graph(title, Some(crate::NETWORKING), data_type, data_path)?;
-  let other = create_time_series_graph(title, Some(crate::OTHER), data_type, data_path)?;
+  let category_names: &[(&str, Option<&str>)] = &[
+    ("All", None),
+    ("Compute", Some(crate::COMPUTE)),
+    ("Serverless", Some(crate::SERVERLESS)),
+    ("Data", Some(crate::DATA)),
+    ("Networking", Some(crate::NETWORKING)),
+    ("Other", Some(crate::OTHER)),
+  ];
 
-  let tpl_path = PathBuf::from("src").join("templates").join(template);
-  let tpl = fs::read_to_string(tpl_path)?;
+  let mut sections = Vec::new();
+  for &(section_title, category) in category_names {
+    let datasets = collect_traffic_datasets(category, data_type, data_path)?;
+    sections.push(crate::graph::ChartSection {
+      title: section_title.to_string(),
+      datasets,
+    });
+  }
 
-  let out_path = PathBuf::from("docs").join(output);
-  let rendered = tpl
-    .replace("{{ date }}", timestamp)
-    .replace("{{ all }}", &all)
-    .replace("{{ data }}", &data)
-    .replace("{{ compute }}", &compute)
-    .replace("{{ serverless }}", &serverless)
-    .replace("{{ network }}", &network)
-    .replace("{{ other }}", &other);
+  let page = crate::graph::ChartPage {
+    title: title.to_string(),
+    updated_at: timestamp.to_string(),
+    sections,
+  };
 
-  fs::write(out_path, rendered).map_err(Into::into)
+  info!("Writing {filename}");
+  crate::graph::write_chart_page(output_path, filename, &page)
 }
 
-fn create_time_series_graph(title: &str, category: Option<&str>, data_type: &str, data_path: &Path) -> Result<String> {
-  let mut trace_data = Vec::new();
+fn collect_traffic_datasets(
+  category: Option<&str>,
+  data_type: &str,
+  data_path: &Path,
+) -> Result<Vec<crate::graph::ChartDataset>> {
+  let mut datasets = Vec::new();
 
   for entry in fs::read_dir(data_path.join("github"))? {
     let entry = entry?;
@@ -206,38 +201,34 @@ fn create_time_series_graph(title: &str, category: Option<&str>, data_type: &str
     // Aggregate daily data into monthly buckets (sum counts per month)
     let mut monthly: BTreeMap<chrono::NaiveDate, u64> = BTreeMap::new();
     for (_, v) in summary.iter() {
-      let timestamp = chrono::DateTime::parse_from_rfc3339(&v.timestamp).context("Failed to parse timestamp")?;
-      let date = timestamp.date_naive();
+      let ts = chrono::DateTime::parse_from_rfc3339(&v.timestamp).context("Failed to parse timestamp")?;
+      let date = ts.date_naive();
       let month_start = chrono::NaiveDate::from_ymd_opt(date.year(), date.month(), 1)
         .ok_or_else(|| anyhow::anyhow!("Invalid date: {date}"))?;
       *monthly.entry(month_start).or_insert(0) += v.count;
     }
 
-    let x_data: Vec<chrono::NaiveDate> = monthly.keys().copied().collect();
-    let y_data: Vec<String> = monthly.values().map(|c| c.to_string()).collect();
+    let dates: Vec<chrono::NaiveDate> = monthly.keys().copied().collect();
+    let values: Vec<u64> = monthly.values().copied().collect();
+    let (dates, values) = crate::graph::filter_incomplete_month(dates, values);
 
-    trace_data.push(crate::graph::TraceData {
-      name: dir_name,
-      x_data,
-      y_data,
+    let data_points = dates
+      .iter()
+      .zip(values.iter())
+      .map(|(d, v)| crate::graph::DataPoint {
+        x: d.to_string(),
+        y: *v,
+      })
+      .collect();
+
+    datasets.push(crate::graph::ChartDataset {
+      label: dir_name,
+      data: data_points,
     });
   }
 
-  let category = category.unwrap_or("all");
-  let title = format!("{} - {}", crate::titlecase(category.to_string())?, title);
-  let html_title = title
-    .split_whitespace()
-    .map(|x| x.to_string().to_lowercase())
-    .collect::<Vec<String>>()
-    .join("_");
+  // Sort datasets by label for consistent output
+  datasets.sort_by(|a, b| a.label.cmp(&b.label));
 
-  let titles = crate::graph::Titles {
-    title: title.to_string(),
-    x_title: "Date".to_string(),
-    y_title: crate::titlecase(data_type.to_string())?,
-  };
-
-  info!("Plotting {} time series", title);
-
-  crate::graph::plot_time_series(&html_title, trace_data, titles, plotly::common::Mode::Lines)
+  Ok(datasets)
 }
