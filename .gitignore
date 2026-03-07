@@ -11,3 +11,6 @@ target/
 
 # mdBook generated dir
 book
+
+# Git worktrees
+.worktrees/
