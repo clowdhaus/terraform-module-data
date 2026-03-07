@@ -26,11 +26,6 @@ jobs:
         with:
           mdbook-version: '0.5.2'
 
-      - name: Install mdBook plugins
-        run: |
-          curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/v1.17.6/install-from-binstall-release.sh | bash
-          cargo binstall mdbook-linkcheck2@0.12.0 -y
-
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5

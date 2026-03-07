@@ -4,11 +4,6 @@ language = "en"
 src = "docs"
 title = "Terraform Module Data"
 
-[output]
-
-[output.linkcheck2]
-optional = true
-
 [output.html]
 git-repository-url = "https://github.com/clowdhaus/terraform-module-data/tree/main"
 edit-url-template = "https://github.com/clowdhaus/terraform-module-data/edit/main/{path}"
