@@ -1,4 +1,1 @@
-theme/* linguist-vendored
-docs/github-clones.md linguist-generated=true
-docs/github-page-views.md linguist-generated=true
-docs/registry-downloads.md linguist-generated=true
+site/public/data/*.json linguist-generated=true
