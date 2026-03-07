@@ -1,0 +1,69 @@
+---
+const currentPath = Astro.url.pathname;
+const base = import.meta.env.BASE_URL;
+
+const links = [
+  { href: `${base}/`, label: 'Overview' },
+  { href: `${base}/github-clones/`, label: 'GitHub Clones' },
+  { href: `${base}/github-views/`, label: 'GitHub Views' },
+  { href: `${base}/registry/`, label: 'Registry Downloads' },
+];
+---
+
+<nav>
+  <div class="nav-inner container">
+    <a href={`${base}/`} class="nav-brand">Terraform Module Data</a>
+    <div class="nav-links">
+      {links.map(link => (
+        <a
+          href={link.href}
+          class:list={['nav-link', { active: currentPath === link.href }]}
+        >
+          {link.label}
+        </a>
+      ))}
+    </div>
+  </div>
+</nav>
+
+<style>
+  nav {
+    background: var(--ctp-mantle);
+    border-bottom: 1px solid var(--ctp-surface0);
+    padding: 0.75rem 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .nav-inner {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+  }
+  .nav-brand {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--ctp-text);
+  }
+  .nav-brand:hover { text-decoration: none; }
+  .nav-links {
+    display: flex;
+    gap: 1rem;
+  }
+  .nav-link {
+    color: var(--ctp-overlay1);
+    font-size: 0.9rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    transition: color 0.15s, background 0.15s;
+  }
+  .nav-link:hover {
+    color: var(--ctp-text);
+    background: var(--ctp-surface0);
+    text-decoration: none;
+  }
+  .nav-link.active {
+    color: var(--ctp-blue);
+    background: var(--ctp-surface0);
+  }
+</style>

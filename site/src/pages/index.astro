@@ -1,0 +1,58 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="Overview">
+  <h1>Terraform Module Data</h1>
+  <p class="subtitle">
+    Download and traffic analytics for
+    <a href="https://github.com/terraform-aws-modules">terraform-aws-modules</a>.
+  </p>
+
+  <div class="cards">
+    <a href={`${import.meta.env.BASE_URL}/github-clones/`} class="card">
+      <h2>GitHub Clones</h2>
+      <p>Repository clone traffic over time</p>
+    </a>
+    <a href={`${import.meta.env.BASE_URL}/github-views/`} class="card">
+      <h2>GitHub Views</h2>
+      <p>Repository page view traffic over time</p>
+    </a>
+    <a href={`${import.meta.env.BASE_URL}/registry/`} class="card">
+      <h2>Registry Downloads</h2>
+      <p>Terraform Registry download counts by version</p>
+    </a>
+  </div>
+</Base>
+
+<style>
+  h1 { margin-bottom: 0.5rem; }
+  .subtitle {
+    color: var(--ctp-subtext0);
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
+  }
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+  }
+  .card {
+    background: var(--ctp-mantle);
+    border: 1px solid var(--ctp-surface0);
+    border-radius: 8px;
+    padding: 1.5rem;
+    transition: border-color 0.15s;
+    color: var(--ctp-text);
+  }
+  .card:hover {
+    border-color: var(--ctp-blue);
+    text-decoration: none;
+  }
+  .card h2 {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+    color: var(--ctp-blue);
+  }
+  .card p { color: var(--ctp-subtext0); font-size: 0.9rem; }
+</style>

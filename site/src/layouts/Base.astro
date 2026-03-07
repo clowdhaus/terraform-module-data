@@ -1,0 +1,32 @@
+---
+import Nav from '../components/Nav.astro';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title} - Terraform Module Data</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body>
+    <Nav />
+    <main class="container">
+      <slot />
+    </main>
+  </body>
+</html>
+
+<style>
+  main {
+    padding: 2rem 1.5rem;
+  }
+</style>
