@@ -46,11 +46,7 @@ pub fn filter_incomplete_month(dates: Vec<NaiveDate>, values: Vec<u64>) -> (Vec<
 
   match current_month_start {
     Some(cutoff) => {
-      let (d, v): (Vec<_>, Vec<_>) = dates
-        .into_iter()
-        .zip(values)
-        .filter(|(date, _)| *date < cutoff)
-        .unzip();
+      let (d, v): (Vec<_>, Vec<_>) = dates.into_iter().zip(values).filter(|(date, _)| *date < cutoff).unzip();
       (d, v)
     }
     None => (dates, values),

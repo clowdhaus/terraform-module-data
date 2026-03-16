@@ -1,8 +1,4 @@
-use std::{
-  collections::BTreeMap,
-  env, fs,
-  path::Path,
-};
+use std::{collections::BTreeMap, env, fs, path::Path};
 
 use anyhow::{Context, Result, bail};
 use chrono::Datelike;
@@ -125,8 +121,22 @@ pub async fn collect(path: &Path, module: &str) -> Result<()> {
 pub(crate) fn graph(data_path: &Path, output_path: &Path) -> Result<()> {
   let timestamp = chrono::Local::now().to_utc().format("%Y-%m-%d %H:%M:%S").to_string();
 
-  write_traffic_json(&timestamp, data_path, output_path, "Repository Clones", "clones", "github-clones.json")?;
-  write_traffic_json(&timestamp, data_path, output_path, "Repository Page Views", "views", "github-views.json")?;
+  write_traffic_json(
+    &timestamp,
+    data_path,
+    output_path,
+    "Repository Clones",
+    "clones",
+    "github-clones.json",
+  )?;
+  write_traffic_json(
+    &timestamp,
+    data_path,
+    output_path,
+    "Repository Page Views",
+    "views",
+    "github-views.json",
+  )?;
 
   Ok(())
 }
