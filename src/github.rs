@@ -210,7 +210,7 @@ fn collect_traffic_datasets(
 
     // Aggregate daily data into monthly buckets (sum counts per month)
     let mut monthly: BTreeMap<chrono::NaiveDate, u64> = BTreeMap::new();
-    for (_, v) in summary.iter() {
+    for v in summary.values() {
       let ts = chrono::DateTime::parse_from_rfc3339(&v.timestamp).context("Failed to parse timestamp")?;
       let date = ts.date_naive();
       let month_start = chrono::NaiveDate::from_ymd_opt(date.year(), date.month(), 1)
