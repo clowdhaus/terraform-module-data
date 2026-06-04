@@ -1,6 +1,6 @@
 {
   "title": "Terraform Registry Downloads",
-  "updated_at": "2026-06-03 04:33:59",
+  "updated_at": "2026-06-04 04:33:39",
   "sections": [
     {
       "title": "acm",
@@ -20787,6 +20787,10 @@
               "y": 55836142
             }
           ]
+        },
+        {
+          "label": "v6.0",
+          "data": []
         }
       ]
     },
