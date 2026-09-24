@@ -1,0 +1,37 @@
+[
+  {
+    "downloads": 154248,
+    "major_version": "1",
+    "created_at": "2018-02-15"
+  },
+  {
+    "downloads": 248225,
+    "major_version": "2",
+    "created_at": "2019-06-12"
+  },
+  {
+    "downloads": 119654,
+    "major_version": "3",
+    "created_at": "2020-06-07"
+  },
+  {
+    "downloads": 1876434,
+    "major_version": "4",
+    "created_at": "2020-08-13"
+  },
+  {
+    "downloads": 1633462,
+    "major_version": "5",
+    "created_at": "2022-03-31"
+  },
+  {
+    "downloads": 2935333,
+    "major_version": "6",
+    "created_at": "2023-05-18"
+  },
+  {
+    "downloads": 544918,
+    "major_version": "7",
+    "created_at": "2025-07-30"
+  }
+]
